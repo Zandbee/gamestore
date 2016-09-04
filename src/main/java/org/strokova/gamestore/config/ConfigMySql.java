@@ -15,7 +15,7 @@ import javax.sql.DataSource;
  */
 
 @Configuration
-@ComponentScan
+@ComponentScan //TODO: basePackages?
 @PropertySource("datasource.properties")
 public class ConfigMySql {
     @Autowired
