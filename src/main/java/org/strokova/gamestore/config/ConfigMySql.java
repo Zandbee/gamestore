@@ -20,7 +20,6 @@ import java.util.Properties;
  */
 
 @Configuration
-@ComponentScan
 @PropertySource("datasource.properties")
 public class ConfigMySql {
     @Autowired
