@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context>
+
+    <Resource name="jdbc/gamestore"
+              auth="Container"
+              type="javax.sql.DataSource"
+              username="admin"
+              password="admin"
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/gamestore"
+              maxActive="15"
+              maxIdle="3"
+              />
+</Context>
