@@ -1,4 +1,4 @@
-package org.strokova.gamestore.config;
+package org.strokova.gamestore.configuration;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

@@ -1,8 +1,8 @@
 package org.strokova.gamestore.controller;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-import org.strokova.gamestore.config.ConfigRoot;
-import org.strokova.gamestore.config.ConfigWeb;
+import org.strokova.gamestore.configuration.ConfigRoot;
+import org.strokova.gamestore.configuration.ConfigWeb;
 
 /**
  * @author vstrokova, 06.09.2016.
