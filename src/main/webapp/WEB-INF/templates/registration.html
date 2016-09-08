@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <form action="subscribe.html" th:attr="action=@{/subscribe}">
+    <form th:action="@{/registration}" method="post">
         <fieldset>
-            <input type="text" name="email" />
-            <input type="submit" value="Subscribe me!" th:attr="value=#{subscribe.submit}"/>
+            Username: <input type="text" name="username" /> <br>
+            Password: <input type="password" name="password" /> <br><br>
+            <input type="submit" th:value="#{registration.submit}"/>
         </fieldset>
     </form>
 </body>

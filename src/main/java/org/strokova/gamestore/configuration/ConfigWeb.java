@@ -43,14 +43,14 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     public ViewResolver viewResolver() {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
         resolver.setTemplateEngine(templateEngine());
-        resolver.setCharacterEncoding(ENCODING_UTF_8);
+        resolver.setCharacterEncoding(ENCODING_UTF_8); //TODO: does not work, fix
         return resolver;
     }
 
     @Bean
-    public TemplateEngine templateEngine() {
+    public TemplateEngine templateEngine() { //TODO: private? not needed anywhere else - not a bean?
         SpringTemplateEngine engine = new SpringTemplateEngine();
-        engine.setEnableSpringELCompiler(true); //TODO: do I need Spring expression lang?
+        engine.setEnableSpringELCompiler(true);
         engine.setTemplateResolver(templateResolver());
         return engine;
     }
@@ -61,6 +61,9 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
         resolver.setPrefix(RESOURCE_PREFIX);
         resolver.setSuffix(RESOURCE_SUFFIX);
         resolver.setTemplateMode(TemplateMode.HTML);
+
+        resolver.setCacheable(false); // TODO: remove when release
+
         return resolver;
     }
 
@@ -69,6 +72,9 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename(RESOURCE_MESSAGES_PREFIX);
         messageSource.setDefaultEncoding(ENCODING_UTF_8);
+
+        messageSource.setCacheSeconds(10); // TODO: remove when release
+        
         return messageSource;
     }
 
