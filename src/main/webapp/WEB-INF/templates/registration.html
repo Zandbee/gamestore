@@ -3,8 +3,10 @@
 <body>
     <form th:action="@{/registration}" method="post">
         <fieldset>
-            Username: <input type="text" name="username" /> <br>
-            Password: <input type="password" name="password" /> <br><br>
+            <label for="username" th:text="#{registration.username}"/>
+            <input id="username" type="text" name="username" /> <br>
+            <label for="password" th:text="#{registration.password}"/>
+            <input id="password" type="password" name="password" /> <br><br>
             <input type="submit" th:value="#{registration.submit}"/>
         </fieldset>
     </form>
