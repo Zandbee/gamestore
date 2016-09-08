@@ -30,7 +30,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final String RESOURCE_PREFIX = "/WEB-INF/templates/";
     private static final String RESOURCE_SUFFIX = ".html";
-    private static final String RESOURCE_MESSAGES_PREFIX = "/WEB-INF/templates/messages/messages";
+    private static final String RESOURCE_MESSAGES_PREFIX = "/WEB-INF/messages/messages";
 
     private ApplicationContext applicationContext;
 
@@ -43,7 +43,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     public ViewResolver viewResolver() {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
         resolver.setTemplateEngine(templateEngine());
-        resolver.setCharacterEncoding(ENCODING_UTF_8); //TODO: does not work, fix
+        resolver.setCharacterEncoding(ENCODING_UTF_8);
         return resolver;
     }
 
