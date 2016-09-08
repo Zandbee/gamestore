@@ -4,6 +4,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.repository.UserRepository;
@@ -28,6 +29,7 @@ public class RegistrationController {
         return PAGE_REGISTRATION_NAME;
     }
 
+    @Transactional
     @RequestMapping(method = POST)
     public String processRegistration(User user) {
         userRepository.save(user);

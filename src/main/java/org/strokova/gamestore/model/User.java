@@ -1,9 +1,6 @@
 package org.strokova.gamestore.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * author: Veronika, 9/4/2016.
@@ -11,11 +8,12 @@ import javax.persistence.Id;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String username; // max = 45
     private String password; // max = 45
-    private int roleId;
+    @Column(name="role_id")
+    private Integer roleId;
 
     protected User() {}
 
@@ -50,11 +48,11 @@ public class User {
         this.password = password;
     }
 
-    public int getRoleId() {
+    public Integer getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(int roleId) {
+    public void setRoleId(Integer roleId) {
         this.roleId = roleId;
     }
 }
