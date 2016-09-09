@@ -12,16 +12,16 @@ public class User {
     private Integer id;
     private String username; // max = 45
     private String password; // max = 45
-    @Column(name="role_id")
-    private Integer roleId;
+    @Enumerated(EnumType.STRING)
+    private Role role; // max = 30
 
     protected User() {}
 
-    public User(int id, String username, String password, int roleId) {
+    public User(int id, String username, String password, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.roleId = roleId;
+        this.role = role;
     }
 
     public Integer getId() {
@@ -48,11 +48,11 @@ public class User {
         this.password = password;
     }
 
-    public Integer getRoleId() {
-        return roleId;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

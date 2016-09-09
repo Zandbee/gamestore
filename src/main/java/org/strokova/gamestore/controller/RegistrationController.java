@@ -5,9 +5,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.strokova.gamestore.model.Role;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.repository.UserRepository;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author vstrokova, 07.09.2016.
@@ -25,7 +30,7 @@ public class RegistrationController {
     }
 
     @RequestMapping(method = GET)
-    public String showRegistrationPage() {
+    public String showRegistrationPage(User user) {
         return PAGE_REGISTRATION_NAME;
     }
 
@@ -34,5 +39,10 @@ public class RegistrationController {
     public String processRegistration(User user) {
         userRepository.save(user);
         return "index"; // TODO: return "redirect: mainPage"
+    }
+
+    @ModelAttribute("allRoles")
+    public List<Role> populateRoles() {
+        return Arrays.asList(Role.ALL);
     }
 }

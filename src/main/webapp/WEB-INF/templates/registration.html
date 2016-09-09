@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <form th:action="@{/registration}" method="post">
+    <form th:action="@{/registration}" th:object="${user}" method="post">
         <fieldset>
-            <label for="username" th:text="#{registration.username}"/>
-            <input id="username" type="text" name="username" /> <br>
-            <label for="password" th:text="#{registration.password}"/>
-            <input id="password" type="password" name="password" /> <br><br>
+            <label th:for="${username}" th:text="#{registration.username}">Username</label>
+            <input type="text" th:field="*{username}" /> <br>
+
+            <label th:for="${password}" th:text="#{registration.password}">Password</label>
+            <input type="password" th:field="*{password}" /> <br>
+
+            <label th:for="${role}" th:text="#{registration.selectRole}">Account type</label>
+            <select th:field="*{role}">
+                <option th:each="role : ${allRoles}" th:value="${role}" th:text="#{${'registration.role.' + role}}">Role</option>
+            </select>
+            <br><br>
             <input type="submit" th:value="#{registration.submit}"/>
         </fieldset>
     </form>
