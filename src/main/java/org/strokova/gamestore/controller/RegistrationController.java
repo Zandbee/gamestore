@@ -20,7 +20,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/registration")
 public class RegistrationController {
-    private static final String PAGE_REGISTRATION_NAME = "registration";
+    private static final String PAGE_REGISTRATION = "registration";
+    private static final String PAGE_SHOPWINDOW = "shopwindow";
 
     private UserRepository userRepository;
 
@@ -31,14 +32,14 @@ public class RegistrationController {
 
     @RequestMapping(method = GET)
     public String showRegistrationPage(User user) {
-        return PAGE_REGISTRATION_NAME;
+        return PAGE_REGISTRATION;
     }
 
-    @Transactional
+    @Transactional // TODO: ??
     @RequestMapping(method = POST)
     public String processRegistration(User user) {
         userRepository.save(user);
-        return "index"; // TODO: return "redirect: mainPage"
+        return "redirect: " + PAGE_SHOPWINDOW; // TODO: return "redirect: mainPage"
     }
 
     @ModelAttribute("allRoles")
