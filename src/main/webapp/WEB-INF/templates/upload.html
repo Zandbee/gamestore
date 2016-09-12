@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <form th:action="@{/upload}" method="post">
+        <fieldset>
+            <label th:for="${}" th:text="#{}">App name</label>
+            <input type="text" th:name="givenName"/> <br>
+
+            <label th:for="${}" th:text="#{}">Description</label>
+            <input type="password" th:name="description"/> <br>
+
+
+            <br><br>
+            <input type="submit" th:value="#{upload.submit}"/>
+    </fieldset>
+    </form>
+</body>
+
+</html>

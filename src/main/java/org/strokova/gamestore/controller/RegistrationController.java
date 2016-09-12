@@ -39,7 +39,7 @@ public class RegistrationController {
     @RequestMapping(method = POST)
     public String processRegistration(User user) {
         userRepository.save(user);
-        return "redirect: " + PAGE_SHOPWINDOW; // TODO: return "redirect: mainPage"
+        return "redirect: " + PAGE_SHOPWINDOW;
     }
 
     @ModelAttribute("allRoles")
