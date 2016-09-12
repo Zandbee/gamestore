@@ -5,10 +5,10 @@
     <form th:action="@{/upload}" method="post">
         <fieldset>
             <label th:for="${}" th:text="#{}">App name</label>
-            <input type="text" th:name="givenName"/> <br>
+            <input type="text" name="givenName"/> <br>
 
             <label th:for="${}" th:text="#{}">Description</label>
-            <input type="password" th:name="description"/> <br>
+            <input type="password" name="description"/> <br>
 
 
             <br><br>
