@@ -24,19 +24,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application saveUploadedApplication(String userGivenName, String description, MultipartFile file) {
-        Path uploadsPath = Paths.get("D:/Temp/gamestore/uploads");
-        if (Files.notExists(uploadsPath)) {
-            try {
-                Files.createDirectories(uploadsPath);
-            } catch (IOException e) {
-                // TODO
-            }
-        }
-        try {
-            file.transferTo(new File(uploadsPath + "/" + file.getOriginalFilename()));
-        } catch (IOException e) {
-            // TODO
-        }
+        // save file to the file system
+        String filePath = saveApplicationFileToFileSystem(file);
 
         // deal with archive
 
@@ -53,5 +42,20 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     private Application saveApplication(Application application) {
         return applicationRepository.save(application);
+    }
+
+    private String saveApplicationFileToFileSystem(MultipartFile file) {
+        Path uploadsPath = Paths.get("D:/Temp/gamestore/uploads");
+        String filePath = null;
+        try {
+            if (Files.notExists(uploadsPath)) {
+                Files.createDirectories(uploadsPath);
+            }
+            filePath = uploadsPath + "/" + file.getOriginalFilename();
+            file.transferTo(new File(filePath));
+        } catch (IOException e) {
+            // TODO
+        }
+        return filePath;
     }
 }
