@@ -2,13 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
-    <form th:action="@{/upload}" method="post">
+    <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
         <fieldset>
             <label for="userGivenName" th:text="#{upload.userGivenName}">App name</label>
             <input id="userGivenName" type="text" name="userGivenName"/> <br>
 
             <label for="description" th:text="#{upload.description}">Description</label>
             <input id="description" type="text" name="description"/> <br>
+
+            <label for="zip" th:text="#{upload.zipFile}">Add zip file</label>
+            <input id="zip" type="file" name="applicationFile" accept=".zip" /><br/>
 
             <br>
             <input type="submit" th:value="#{upload.submit}"/>
