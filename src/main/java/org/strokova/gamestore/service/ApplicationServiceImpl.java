@@ -16,15 +16,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ApplicationRepository applicationRepository;
 
     @Override
-    public <S extends Application> S saveUploadedApplication(String userGivenName, String description) {
+    public Application saveUploadedApplication(String userGivenName, String description) {
         // create Application entity
+        Application app = new Application(userGivenName, description);
         // save with saveApplication
+        app = saveApplication(app);
         // return application
-        return null;
+        return app;
     }
 
     @Transactional
-    private <S extends Application> S saveApplication(S application) {
+    private Application saveApplication(Application application) {
         return applicationRepository.save(application);
     }
 }

@@ -16,7 +16,7 @@ public class Application {
     private String name; // max = 40
     // app name from user input
     @Column(name = "given_name")
-    private String givenName; // max = 40
+    private String userGivenName; // max = 40
     private String description; // max = 300
     @Column(name = "file_path")
     private String filePath; // max = 500
@@ -30,17 +30,22 @@ public class Application {
 
     protected Application() {}
 
-    public Application(Integer id, String appPackage, String name, String givenName, String description, String filePath, String image128Path, String image512Path, Category category, Integer downloadNumber) {
+    public Application(Integer id, String appPackage, String name, String userGivenName, String description, String filePath, String image128Path, String image512Path, Category category, Integer downloadNumber) {
         this.id = id;
         this.appPackage = appPackage;
         this.name = name;
-        this.givenName = givenName;
+        this.userGivenName = userGivenName;
         this.description = description;
         this.filePath = filePath;
         this.image128Path = image128Path;
         this.image512Path = image512Path;
         this.category = category;
         this.downloadNumber = downloadNumber;
+    }
+
+    public Application(String userGivenName, String description) {
+        this.userGivenName = userGivenName;
+        this.description = description;
     }
 
     public Integer getId() {
@@ -67,12 +72,12 @@ public class Application {
         this.name = name;
     }
 
-    public String getGivenName() {
-        return givenName;
+    public String getUserGivenName() {
+        return userGivenName;
     }
 
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
+    public void setUserGivenName(String userGivenName) {
+        this.userGivenName = userGivenName;
     }
 
     public String getDescription() {

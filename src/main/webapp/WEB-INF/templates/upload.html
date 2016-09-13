@@ -4,14 +4,13 @@
 <body>
     <form th:action="@{/upload}" method="post">
         <fieldset>
-            <label th:for="${}" th:text="#{}">App name</label>
-            <input type="text" name="givenName"/> <br>
+            <label for="userGivenName" th:text="#{upload.userGivenName}">App name</label>
+            <input id="userGivenName" type="text" name="userGivenName"/> <br>
 
-            <label th:for="${}" th:text="#{}">Description</label>
-            <input type="password" name="description"/> <br>
+            <label for="description" th:text="#{upload.description}">Description</label>
+            <input id="description" type="text" name="description"/> <br>
 
-
-            <br><br>
+            <br>
             <input type="submit" th:value="#{upload.submit}"/>
     </fieldset>
     </form>

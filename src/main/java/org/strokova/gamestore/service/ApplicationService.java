@@ -8,5 +8,5 @@ import org.strokova.gamestore.model.Application;
  */
 @Service
 public interface ApplicationService {
-    <S extends Application> S saveUploadedApplication(String userGivenName, String description);
+    Application saveUploadedApplication(String userGivenName, String description);
 }
