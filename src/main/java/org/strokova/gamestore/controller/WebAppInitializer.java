@@ -37,7 +37,8 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         try {
-        Path uploadsPath = Paths.get(env.getProperty("upload.location.temp"));
+        //Path uploadsPath = Paths.get(env.getProperty("upload.location.temp"));
+        Path uploadsPath = Paths.get("D:/Temp/gamestore/tmp");
         if (Files.notExists(uploadsPath)) {
             Files.createDirectories(uploadsPath);
         }

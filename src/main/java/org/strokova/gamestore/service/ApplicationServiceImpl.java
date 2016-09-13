@@ -9,6 +9,9 @@ import org.strokova.gamestore.repository.ApplicationRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author vstrokova, 12.09.2016.
@@ -21,12 +24,20 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application saveUploadedApplication(String userGivenName, String description, MultipartFile file) {
+        Path uploadsPath = Paths.get("D:/Temp/gamestore/uploads");
+        if (Files.notExists(uploadsPath)) {
+            try {
+                Files.createDirectories(uploadsPath);
+            } catch (IOException e) {
+                // TODO
+            }
+        }
         try {
-            file.transferTo(new File("/data/files/" + file.getOriginalFilename()));
+            file.transferTo(new File(uploadsPath + "/" + file.getOriginalFilename()));
         } catch (IOException e) {
             // TODO
         }
-        
+
         // deal with archive
 
         // create Application entity
