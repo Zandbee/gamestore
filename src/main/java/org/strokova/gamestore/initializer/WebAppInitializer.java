@@ -16,6 +16,11 @@ import java.nio.file.Paths;
  */
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
+    private static final String UPLOAD_TEMP_PATH = "D:/Temp/gamestore/tmp"; // TODO: move to config?
+    private static final int MAX_FILE_SIZE = 2097152; // 2 MB
+    private static final int MAX_REQUEST_SIZE = 4194304; // 4 MB
+    private static final int FILE_SIZE_THRESHOLD = 0;
+
     @Override
     protected String[] getServletMappings() {
         return new String[] {"/"};
@@ -34,17 +39,12 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         try {
-        //Path uploadsPath = Paths.get(env.getProperty("upload.location.temp"));
-        Path uploadsPath = Paths.get("D:/Temp/gamestore/tmp");
+        Path uploadsPath = Paths.get(UPLOAD_TEMP_PATH);
         if (Files.notExists(uploadsPath)) {
             Files.createDirectories(uploadsPath);
         }
         registration.setMultipartConfig(
-                new MultipartConfigElement(uploadsPath.toString()));
-        // TODO: move path to config ^^
-        // TODO set restrictions: new MultipartConfigElement("/tmp/spittr/uploads", 2097152, 4194304, 0)); -
-        // to limit files to no more than 2 MB, to limit the entire request to no more than 4 MB, and to write all files to disk.
-        // set any instead of 0 to test temp folder
+                new MultipartConfigElement(uploadsPath.toString(), MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD));
         } catch (IOException e) {
             // TODO
         }
