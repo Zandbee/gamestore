@@ -11,9 +11,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,6 +24,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private static final String UPLOAD_ZIP_PATH = "D:/Temp/gamestore/uploads/zip"; // TODO: move to config?
     private static final String UPLOAD_IMAGE_PATH = "D:/Temp/gamestore/uploads/images"; // TODO: how write file correctly to work in diff os?
+    private static final String UPLOADS_TEMP_PATH = "D:/Temp/gamestore/uploads/tmp";
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ENCODING_UTF_8 = "UTF-8";
 
@@ -33,19 +33,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application saveUploadedApplication(String userGivenName, String description, MultipartFile file) {
-        // save file to the file system
-        String filePath = saveApplicationFileToFileSystem(file);
+        // save uploaded zip to temp dir
+        Path tempDirectory = prepareTempDirectory(userGivenName);
+        String zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
-        // deal with archive
+        handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
 
-        // create Application entity
-        Application app = new Application(userGivenName, description);
-
-        // save with saveApplication
-        app = saveApplication(app);
+        // delete temp dir
 
         // return application
-        return app;
+        return null; // TODO: return application
     }
 
     @Transactional
@@ -53,47 +50,69 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.save(application);
     }
 
-    private String saveApplicationFileToFileSystem(MultipartFile file) {
-        Path uploadsPath = Paths.get(UPLOAD_ZIP_PATH);
-        String filePath = null;
+    // return saved file location
+    private String saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
+        String tempFilePath = null;
         try {
-            if (Files.notExists(uploadsPath)) {
-                Files.createDirectories(uploadsPath);
-            }
             String fileName = file.getOriginalFilename();
-            if (fileName != null && !fileName.isEmpty() && fileName.endsWith(ZIP_FILE_EXTENSION)) {
-                filePath = uploadsPath + File.separator + fileName;
-                file.transferTo(new File(filePath));
+            if (fileName != null && !fileName.isEmpty() && fileName.endsWith(ZIP_FILE_EXTENSION)) { // TODO: do smth if not zip (already restricting in html?
+                tempFilePath = tempDir + File.separator + fileName;
+                file.transferTo(new File(tempFilePath));
             }
         } catch (IOException e) {
             // TODO
         }
-        return filePath;
+        return tempFilePath;
     }
 
-    // application file is a zip file
-    private ApplicationDataFromTxtFile validateAndSaveApplicationFileContent(String applicationFilePath) {
-        ApplicationDataFromTxtFile appData = new ApplicationDataFromTxtFile();
+    private File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
+        File file = new File(dir + File.separator + fileName);
+        Path path = file.toPath();
+        System.out.println("PATH: " + path);
+        byte[] buf = new byte[2048];
 
-        // 1. find txt
-        InputStream fileInputStream = findTxtFileAndGetInputStream(getZipInputStreamFrom(applicationFilePath));
-
-        if (fileInputStream != null) {
-            appData = fillApplicationDataFromTextFile(appData, fileInputStream);
-            // 2. if txt contains name and package - this is the right file. if not - a wrong txt, user does not need it - reject
-            if (appData.getName() != null && appData.getAppPackage() != null) {
-                if (appData.getImage128Path() != null || appData.getImage512Path() != null) {
-                    // 3. if the right txt contains picture_128 and/or picture_512 - check other entries of zip for their names. if found pic - save, if has other entries - reject
-
-
-                }
-                // return appData with name, package, picture_128/512 paths
-                return appData;
+        if (Files.notExists(path)) {
+            try {
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                // TODO
             }
         }
 
-        // zip is not valid
-        return null;
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            System.out.println("SAVING TO: " + file.toString());
+            int length;
+            while ((length = is.read(buf)) > 0) {
+                fos.write(buf, 0, length);
+            }
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+
+        return file;
+    }
+
+    private void handleZip(ZipInputStream zis, Path tempDir) {
+        ZipEntry entry;
+        String entryName;
+        ZipDescriptor zipDescriptor = new ZipDescriptor();
+        Map<String, File> entryFiles = new HashMap<>();
+
+        try {
+            while ((entry = zis.getNextEntry()) != null) {
+                entryName = entry.getName();
+                System.out.println("ENTRY: " + entryName);
+                if (isTxt(entryName)) {
+
+                } else {
+                    System.out.println("NOT TXT: " + entryName);
+                    entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
+                }
+            }
+        } catch (IOException e) {
+            // TODO
+        }
     }
 
     private static ZipInputStream getZipInputStreamFrom(String filePath) {
@@ -106,78 +125,33 @@ public class ApplicationServiceImpl implements ApplicationService {
         return zis;
     }
 
-    // @return null if txt file not found
-    private static InputStream findTxtFileAndGetInputStream(ZipInputStream zipFileInputStream) {
-        ZipEntry entry;
-        String entryName;
-        InputStream txtFileInputStream = null;
-
-        try {
-            while ((entry = zipFileInputStream.getNextEntry()) != null) {
-                entryName = entry.getName();
-                if (isTxt(entryName)) {
-                    txtFileInputStream = zipFileInputStream;
-                }
+    private static Path prepareTempDirectory(String userGivenName) {
+        Path tempDir = Paths.get(UPLOADS_TEMP_PATH + File.separator + userGivenName);
+        if (Files.notExists(tempDir)) {
+            try {
+                Files.createDirectories(tempDir);
+            } catch (IOException e) {
+                // TODO
             }
-        } catch (IOException e) {
-            // TODO
         }
-
-        return txtFileInputStream;
+        return tempDir;
     }
 
     private static boolean isTxt(String fileName) {
         return fileName.endsWith(".txt");
     }
 
-    private ApplicationDataFromTxtFile fillApplicationDataFromTextFile(
-            ApplicationDataFromTxtFile appData, InputStream txtFileInputStream) {
-        String line;
-        final String nameField = "name:"; // TODO: do this elegantly (move to ApplicationDataFromTxtFile)
-        final String packageField = "package:";
-        final String image128Field = "picture_128:";
-        final String image512Field = "picture_512:";
-
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(txtFileInputStream, ENCODING_UTF_8));
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith(nameField)) {
-                    appData.setName(line.substring(nameField.length()).trim());
-                }
-                if (line.startsWith(packageField)) {
-                    appData.setAppPackage(line.substring(packageField.length()).trim());
-                }
-                if (line.startsWith(image128Field)) {
-                    appData.setImage128Path(line.substring(image128Field.length()).trim());
-                }
-                if (line.startsWith(image512Field)) {
-                    appData.setImage512Path(line.substring(image512Field.length()).trim());
-                }
-            }
-        } catch (IOException e) {
-            // TODO
-        }
-
-        return appData;
+    private static boolean isImage(Path imagePath) throws IOException {
+        return Files.probeContentType(imagePath).startsWith("image"); // TODO: "image/"?;
     }
 
-    private ApplicationDataFromTxtFile saveImagesAndAddPathToApplicationData(
-            ApplicationDataFromTxtFile appData, ZipInputStream zipFileInputStream) {
-
-        String image128Name = appData.getImage128Path();
-        String image512Name = appData.getImage512Path();
-
-        // save images
-        // update appData with their paths
-
-        return appData;
-    }
-
-    private class ApplicationDataFromTxtFile {
+    private class ZipDescriptor {
         private String name;
         private String appPackage;
         private String image128Path;
         private String image512Path;
+        private File image128File;
+        private File image512File;
 
         public String getName() {
             return name;
@@ -209,6 +183,22 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         public void setImage512Path(String image512Path) {
             this.image512Path = image512Path;
+        }
+
+        public File getImage128File() {
+            return image128File;
+        }
+
+        public void setImage128File(File image128File) {
+            this.image128File = image128File;
+        }
+
+        public File getImage512File() {
+            return image512File;
+        }
+
+        public void setImage512File(File image512File) {
+            this.image512File = image512File;
         }
     }
 }
