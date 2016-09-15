@@ -26,6 +26,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String UPLOAD_IMAGE_PATH = "D:/Temp/gamestore/uploads/images"; // TODO: how write file correctly to work in diff os?
     private static final String UPLOADS_TEMP_PATH = "D:/Temp/gamestore/uploads/tmp";
     private static final String ZIP_FILE_EXTENSION = ".zip";
+    private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
 
     @Autowired
@@ -66,28 +67,31 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
-        File file = new File(dir + File.separator + fileName);
-        Path path = file.toPath();
-        System.out.println("PATH: " + path);
-        byte[] buf = new byte[2048];
+        if (fileName.contains(ZIP_INNER_FILE_SEPARATOR)) { // TODO: this is not pretty
+            int pos = fileName.lastIndexOf(ZIP_INNER_FILE_SEPARATOR);
+            dir = Paths.get(dir.toString() +
+                    fileName.substring(0, pos).replace(ZIP_INNER_FILE_SEPARATOR, File.separator));
+            fileName = fileName.substring(pos + 1);
+        }
 
-        if (Files.notExists(path)) {
+        if (Files.notExists(dir)) {
             try {
-                Files.createDirectories(path);
+                Files.createDirectories(dir);
             } catch (IOException e) {
                 // TODO
             }
         }
 
+        File file = new File(dir + File.separator + fileName);
+        byte[] buf = new byte[2048];
+
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            System.out.println("SAVING TO: " + file.toString());
             int length;
             while ((length = is.read(buf)) > 0) {
                 fos.write(buf, 0, length);
             }
         } catch (IOException e) {
             // TODO
-            e.printStackTrace();
         }
 
         return file;
@@ -102,11 +106,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             while ((entry = zis.getNextEntry()) != null) {
                 entryName = entry.getName();
-                System.out.println("ENTRY: " + entryName);
                 if (isTxt(entryName)) {
 
                 } else {
-                    System.out.println("NOT TXT: " + entryName);
                     entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
                 }
             }
