@@ -101,13 +101,67 @@ public class ApplicationServiceImpl implements ApplicationService {
         ZipEntry entry;
         String entryName;
         ZipDescriptor zipDescriptor = new ZipDescriptor();
+        String txtName = null, txtPackage = null, txtImage128 = null, txtImage512 = null;
         Map<String, File> entryFiles = new HashMap<>();
 
         try {
             while ((entry = zis.getNextEntry()) != null) {
                 entryName = entry.getName();
                 if (isTxt(entryName)) {
+                    String line;
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(zis, ENCODING_UTF_8));
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith(ZipDescriptor.TXT_NAME)) {
+                            txtName = line.substring(ZipDescriptor.TXT_NAME.length()).trim();
+                        }
+                        if (line.startsWith(ZipDescriptor.TXT_PACKAGE)) {
+                            txtPackage = line.substring(ZipDescriptor.TXT_PACKAGE.length()).trim();
+                        }
+                        if (line.startsWith(ZipDescriptor.TXT_IMAGE_128)) {
+                            txtImage128 = line.substring(ZipDescriptor.TXT_IMAGE_128.length()).trim();
+                        }
+                        if (line.startsWith(ZipDescriptor.TXT_IMAGE_512)) {
+                            txtImage512 = line.substring(ZipDescriptor.TXT_IMAGE_512.length()).trim();
+                        }
+                        if (txtName == null || txtPackage == null) {
+                            // this is not a valid txt - invalid zip - return
+                        } else {
+                            zipDescriptor.setName(txtName);
+                            zipDescriptor.setAppPackage(txtPackage);
 
+                            if (txtImage128 != null || txtImage512 != null) {
+                                // check entryFiles
+                                for (Map.Entry<String, File> entryFile : entryFiles.entrySet()) {
+                                    String entryFileName = entryFile.getKey();
+                                    String entryFileNameWithoutExtension = entryFileName.substring(0, entryFileName.lastIndexOf("."));
+                                    if (txtImage128 != null && txtImage128.equals(entryFileNameWithoutExtension)) {
+                                        zipDescriptor.setImage128Path(txtImage128);
+                                        zipDescriptor.setImage128File(entryFile.getValue());
+                                    }
+                                    if (txtImage512 != null && txtImage512.equals(entryFileNameWithoutExtension)) {
+                                        zipDescriptor.setImage512Path(txtImage512);
+                                        zipDescriptor.setImage512File(entryFile.getValue());
+                                    }
+                                    // TODO check if is image
+                                }
+
+                                // check remaining zis' entries
+                                while ((entry = zis.getNextEntry()) != null) {
+                                    entryName = entry.getName();
+                                    String entryNameWithoutExtension = entryName.substring(0, entryName.lastIndexOf("."));
+                                    if (txtImage128 != null && txtImage128.equals(entryNameWithoutExtension)) {
+                                        zipDescriptor.setImage128Path(txtImage128);
+                                        zipDescriptor.setImage128File(saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
+                                    }
+                                    if (txtImage512 != null && txtImage512.equals(entryNameWithoutExtension)) {
+                                        zipDescriptor.setImage512Path(txtImage512);
+                                        zipDescriptor.setImage512File(saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
+                                    }
+                                    // TODO check if is image
+                                }
+                            }
+                        }
+                    }
                 } else {
                     entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
                 }
@@ -154,6 +208,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         private String image512Path;
         private File image128File;
         private File image512File;
+
+        public static final String TXT_NAME = "name:";
+        public static final String TXT_PACKAGE = "package:";
+        public static final String TXT_IMAGE_128 = "picture_128:";
+        public static final String TXT_IMAGE_512 = "picture_512:";
 
         public String getName() {
             return name;
