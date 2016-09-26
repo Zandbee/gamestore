@@ -42,35 +42,53 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         ZipDescriptor zipDescriptor = handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
 
+        Application application = new Application();
+
         if (isValidZipDescriptor(zipDescriptor)) {
             String packageName = zipDescriptor.getAppPackage();
             String appName = zipDescriptor.getName();
             Path permanentApplicationDirectory = preparePermanentDirectory(packageName, appName);
-            // из временной папки копируем зип в постоянную папку
-            copyFile(zipFileTmpPath, permanentApplicationDirectory);
-            // из временной папки копируем картинки в постоянную папку, если имеются
+
+            // copy app zip from temp to permanent dir
+            Path permanentZipPath = copyFile(zipFileTmpPath, permanentApplicationDirectory);
+
+            application
+                    .setAppPackage(packageName)
+                    .setName(appName)
+                    .setUserGivenName(userGivenName)
+                    .setDescription(description)
+                    .setFilePath(permanentZipPath.toString());
+
+            // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
             File image512 = zipDescriptor.getImage512File();
             if (image128 != null) {
-                copyFile(image128.toPath(), permanentApplicationDirectory);
+                Path permanentImage128Path = copyFile(image128.toPath(), permanentApplicationDirectory);
+                application.setImage128Path(permanentImage128Path.toString());
             }
             if (image512 != null) {
-                copyFile(image512.toPath(), permanentApplicationDirectory);
+                Path permanentImage512Path = copyFile(image512.toPath(), permanentApplicationDirectory);
+                application.setImage512Path(permanentImage512Path.toString());
             }
+
+            // save app to DB
+            saveApplication(application);
         }
 
         // delete temp dir
 
         // return application
-        return null; // TODO: return application
+        return application;
     }
 
-    private void copyFile(Path scr, Path dest) {
+    private Path copyFile(Path scr, Path dest) {
+        Path destWithFileName = dest.resolve(scr.getFileName());
         try {
-            Files.copy(scr, dest.resolve(scr.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(scr, destWithFileName, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // TODO
         }
+        return destWithFileName;
     }
 
     @Transactional
@@ -198,11 +216,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             String entryFileName = entryFile.getKey();
             String entryFileNameWithoutExtension = entryFileName.substring(0, entryFileName.lastIndexOf("."));
             if (image128Name != null && image128Name.equals(entryFileNameWithoutExtension)) {
-                zipDescriptor.setImage128Path(image128Name);
+                zipDescriptor.setImage128Name(image128Name);
                 zipDescriptor.setImage128File(entryFile.getValue());
             }
             if (image512Name != null && image512Name.equals(entryFileNameWithoutExtension)) {
-                zipDescriptor.setImage512Path(image512Name);
+                zipDescriptor.setImage512Name(image512Name);
                 zipDescriptor.setImage512File(entryFile.getValue());
             }
             // TODO check if is image
@@ -222,11 +240,11 @@ public class ApplicationServiceImpl implements ApplicationService {
                 entryName = entry.getName();
                 String entryNameWithoutExtension = entryName.substring(0, entryName.lastIndexOf("."));
                 if (image128Name != null && image128Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage128Path(image128Name);
+                    zipDescriptor.setImage128Name(image128Name);
                     zipDescriptor.setImage128File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
                 }
                 if (image512Name != null && image512Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage512Path(image512Name);
+                    zipDescriptor.setImage512Name(image512Name);
                     zipDescriptor.setImage512File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
                 }
                 // TODO check if is image
@@ -292,8 +310,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         private String appPackage;
         private String image128Name;
         private String image512Name;
-        private String image128Path;
-        private String image512Path;
         private File image128File;
         private File image512File;
 
@@ -316,22 +332,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         public void setAppPackage(String appPackage) {
             this.appPackage = appPackage;
-        }
-
-        public String getImage128Path() {
-            return image128Path;
-        }
-
-        public void setImage128Path(String image128Path) {
-            this.image128Path = image128Path;
-        }
-
-        public String getImage512Path() {
-            return image512Path;
-        }
-
-        public void setImage512Path(String image512Path) {
-            this.image512Path = image512Path;
         }
 
         public File getImage128File() {

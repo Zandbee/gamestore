@@ -28,103 +28,93 @@ public class Application {
     @Column(name = "download_num")
     private Integer downloadNumber;
 
-    protected Application() {}
-
-    public Application(Integer id, String appPackage, String name, String userGivenName, String description, String filePath, String image128Path, String image512Path, Category category, Integer downloadNumber) {
-        this.id = id;
-        this.appPackage = appPackage;
-        this.name = name;
-        this.userGivenName = userGivenName;
-        this.description = description;
-        this.filePath = filePath;
-        this.image128Path = image128Path;
-        this.image512Path = image512Path;
-        this.category = category;
-        this.downloadNumber = downloadNumber;
-    }
-
-    public Application(String userGivenName, String description) {
-        this.userGivenName = userGivenName;
-        this.description = description;
-    }
-
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getAppPackage() {
         return appPackage;
     }
 
-    public void setAppPackage(String appPackage) {
-        this.appPackage = appPackage;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUserGivenName() {
         return userGivenName;
     }
 
-    public void setUserGivenName(String userGivenName) {
-        this.userGivenName = userGivenName;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
     public String getImage128Path() {
         return image128Path;
-    }
-
-    public void setImage128Path(String image128Path) {
-        this.image128Path = image128Path;
     }
 
     public String getImage512Path() {
         return image512Path;
     }
 
-    public void setImage512Path(String image512Path) {
-        this.image512Path = image512Path;
-    }
-
     public Category getCategory() {
         return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
     }
 
     public Integer getDownloadNumber() {
         return downloadNumber;
     }
 
-    public void setDownloadNumber(Integer downloadNumber) {
+    public Application setId(Integer id) {
+        this.id = id;
+        return this;
+    }
+
+    public Application setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
+        return this;
+    }
+
+    public Application setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Application setUserGivenName(String userGivenName) {
+        this.userGivenName = userGivenName;
+        return this;
+    }
+
+    public Application setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public Application setFilePath(String filePath) {
+        this.filePath = filePath;
+        return this;
+    }
+
+    public Application setImage128Path(String image128Path) {
+        this.image128Path = image128Path;
+        return this;
+    }
+
+    public Application setImage512Path(String image512Path) {
+        this.image512Path = image512Path;
+        return this;
+    }
+
+    public Application setCategory(Category category) {
+        this.category = category;
+        return this;
+    }
+
+    public Application setDownloadNumber(Integer downloadNumber) {
         this.downloadNumber = downloadNumber;
+        return this;
     }
 }
