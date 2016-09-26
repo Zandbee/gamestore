@@ -24,6 +24,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private static final String UPLOAD_ZIP_PATH = "D:/Temp/gamestore/uploads/zip"; // TODO: move to config?
     private static final String UPLOAD_IMAGE_PATH = "D:/Temp/gamestore/uploads/images"; // TODO: how write file correctly to work in diff os?
+    private static final String UPLOADS_APPLICATION_PATH = "D:/Temp/gamestore/uploads";
     private static final String UPLOADS_TEMP_PATH = "D:/Temp/gamestore/uploads/tmp";
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
@@ -38,12 +39,39 @@ public class ApplicationServiceImpl implements ApplicationService {
         Path tempDirectory = prepareTempDirectory(userGivenName);
         String zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
-        handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
+        ZipDescriptor zipDescriptor = handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
+
+        if (isValidZipDescriptor(zipDescriptor)) {
+            String packageName = zipDescriptor.getAppPackage();
+            String appName = zipDescriptor.getName();
+            Path permanentApplicationDirectory = preparePermanentDirectory(packageName, appName);
+            // из временной папки копируем зип в постоянную папку
+            saveApplicationZipToPermanentDirectory(zipFileTmpPath, permanentApplicationDirectory);
+            // из временной папки копируем картинки в постоянную папку, если имеются
+        }
 
         // delete temp dir
 
         // return application
         return null; // TODO: return application
+    }
+
+    private void saveApplicationZipToPermanentDirectory(String zipFileTmpPath, Path permanentApplicationDirectory) {
+        String fileName = zipFileTmpPath.substring(zipFileTmpPath.lastIndexOf(File.separator) + 1);
+        File dest = new File(permanentApplicationDirectory + File.separator + fileName);
+        File src = new File (zipFileTmpPath);
+
+        byte[] buf = new byte[2048];
+        try (FileInputStream fis = new FileInputStream(src);
+             FileOutputStream fos = new FileOutputStream(dest)) {
+            int length;
+            while ((length = fis.read(buf)) > 0) {
+                fos.write(buf, 0, length);
+            }
+        } catch (IOException e) {
+            // TODO
+        }
+
     }
 
     @Transactional
@@ -97,7 +125,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return file;
     }
 
-    private void handleZip(ZipInputStream zis, Path tempDir) {
+    private ZipDescriptor handleZip(ZipInputStream zis, Path tempDir) {
         ZipEntry entry;
         String entryName;
         ZipDescriptor zipDescriptor = new ZipDescriptor();
@@ -127,12 +155,11 @@ public class ApplicationServiceImpl implements ApplicationService {
                     entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
                 }
             }
-        } catch (
-                IOException e)
-
-        {
+        } catch (IOException e) {
             // TODO
         }
+
+        return zipDescriptor;
     }
 
     private static ZipDescriptor processTxtAndAddToZipDescriptor(
@@ -234,12 +261,31 @@ public class ApplicationServiceImpl implements ApplicationService {
         return tempDir;
     }
 
+    private static Path preparePermanentDirectory(String packageName, String appName) {
+        Path permDir = Paths.get(UPLOADS_APPLICATION_PATH +
+                File.separator + packageName + File.separator + appName);
+        if (Files.notExists(permDir)) {
+            try {
+                Files.createDirectories(permDir);
+            } catch (IOException e) {
+                // TODO
+            }
+        }
+
+        return permDir;
+    }
+
     private static boolean isTxt(String fileName) {
         return fileName.endsWith(".txt");
     }
 
     private static boolean isImage(Path imagePath) throws IOException {
         return Files.probeContentType(imagePath).startsWith("image"); // TODO: "image/"?;
+    }
+
+    private static boolean isValidZipDescriptor(ZipDescriptor zipDescriptor) {
+        // TODO: check descriptor here
+        return true;
     }
 
     private class ZipDescriptor {
