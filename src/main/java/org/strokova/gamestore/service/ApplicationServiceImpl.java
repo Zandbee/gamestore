@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -37,7 +38,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Application saveUploadedApplication(String userGivenName, String description, MultipartFile file) {
         // save uploaded zip to temp dir
         Path tempDirectory = prepareTempDirectory(userGivenName);
-        String zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
+        Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
         ZipDescriptor zipDescriptor = handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
 
@@ -46,8 +47,16 @@ public class ApplicationServiceImpl implements ApplicationService {
             String appName = zipDescriptor.getName();
             Path permanentApplicationDirectory = preparePermanentDirectory(packageName, appName);
             // из временной папки копируем зип в постоянную папку
-            saveApplicationZipToPermanentDirectory(zipFileTmpPath, permanentApplicationDirectory);
+            copyFile(zipFileTmpPath, permanentApplicationDirectory);
             // из временной папки копируем картинки в постоянную папку, если имеются
+            File image128 = zipDescriptor.getImage128File();
+            File image512 = zipDescriptor.getImage512File();
+            if (image128 != null) {
+                copyFile(image128.toPath(), permanentApplicationDirectory);
+            }
+            if (image512 != null) {
+                copyFile(image512.toPath(), permanentApplicationDirectory);
+            }
         }
 
         // delete temp dir
@@ -56,22 +65,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         return null; // TODO: return application
     }
 
-    private void saveApplicationZipToPermanentDirectory(String zipFileTmpPath, Path permanentApplicationDirectory) {
-        String fileName = zipFileTmpPath.substring(zipFileTmpPath.lastIndexOf(File.separator) + 1);
-        File dest = new File(permanentApplicationDirectory + File.separator + fileName);
-        File src = new File (zipFileTmpPath);
-
-        byte[] buf = new byte[2048];
-        try (FileInputStream fis = new FileInputStream(src);
-             FileOutputStream fos = new FileOutputStream(dest)) {
-            int length;
-            while ((length = fis.read(buf)) > 0) {
-                fos.write(buf, 0, length);
-            }
+    private void copyFile(Path scr, Path dest) {
+        try {
+            Files.copy(scr, dest.resolve(scr.getFileName()), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // TODO
         }
-
     }
 
     @Transactional
@@ -80,18 +79,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     // return saved file location
-    private String saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
-        String tempFilePath = null;
+    private Path saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
+        Path filePath = null;
         try {
             String fileName = file.getOriginalFilename();
             if (fileName != null && !fileName.isEmpty() && fileName.endsWith(ZIP_FILE_EXTENSION)) { // TODO: do smth if not zip (already restricting in html?
-                tempFilePath = tempDir + File.separator + fileName;
-                file.transferTo(new File(tempFilePath));
+                filePath = Paths.get(tempDir + File.separator + fileName);
+                file.transferTo(new File(filePath.toString()));
             }
         } catch (IOException e) {
             // TODO
         }
-        return tempFilePath;
+        return filePath;
     }
 
     private static File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
@@ -239,10 +238,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         return zipDescriptor;
     }
 
-    private static ZipInputStream getZipInputStreamFrom(String filePath) {
+    private static ZipInputStream getZipInputStreamFrom(Path filePath) {
         ZipInputStream zis = null;
         try {
-            zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(filePath)));
+            zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(filePath.toString())));
         } catch (FileNotFoundException e) {
             // TODO
         }
