@@ -40,7 +40,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Path tempDirectory = prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
-        ZipDescriptor zipDescriptor = handleZip(getZipInputStreamFrom(zipFileTmpPath), tempDirectory);
+        ZipDescriptor zipDescriptor = handleZip(zipFileTmpPath, tempDirectory);
 
         Application application = new Application();
 
@@ -76,12 +76,27 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         // delete temp dir
+        deleteFiles(tempDirectory);
 
         // return application
         return application;
     }
 
-    private Path copyFile(Path scr, Path dest) {
+    private static void deleteFiles(Path dir) {
+        deleteFile(new File(dir.toString()));
+    }
+
+    private static void deleteFile(File file) {
+        File[] content = file.listFiles();
+        if (content != null) {
+            for (File f : content) {
+                deleteFile(f);
+            }
+        }
+        file.delete();
+    }
+
+    private static Path copyFile(Path scr, Path dest) {
         Path destWithFileName = dest.resolve(scr.getFileName());
         try {
             Files.copy(scr, destWithFileName, StandardCopyOption.REPLACE_EXISTING);
@@ -142,14 +157,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         return file;
     }
 
-    private ZipDescriptor handleZip(ZipInputStream zis, Path tempDir) {
+    private ZipDescriptor handleZip(Path zipFilePath, Path tempDir) {
         ZipEntry entry;
         String entryName;
         ZipDescriptor zipDescriptor = new ZipDescriptor();
         String txtImage128, txtImage512;
         Map<String, File> entryFiles = new HashMap<>();
 
-        try {
+        try (ZipInputStream zis =
+                     new ZipInputStream(new BufferedInputStream
+                             (new FileInputStream(zipFilePath.toString())))){
             while ((entry = zis.getNextEntry()) != null) {
                 entryName = entry.getName();
                 if (isTxt(entryName)) {
