@@ -3,6 +3,7 @@ package org.strokova.gamestore.initializer;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import org.strokova.gamestore.configuration.ConfigRoot;
 import org.strokova.gamestore.configuration.ConfigWeb;
+import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
@@ -16,7 +17,6 @@ import java.nio.file.Paths;
  */
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
-    private static final String UPLOAD_TEMP_PATH = "D:/Temp/gamestore/tmp"; // TODO: move to config?
     private static final int MAX_FILE_SIZE = 2097152; // 2 MB
     private static final int MAX_REQUEST_SIZE = 4194304; // 4 MB
     private static final int FILE_SIZE_THRESHOLD = 0;
@@ -39,7 +39,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         try {
-        Path uploadsPath = Paths.get(UPLOAD_TEMP_PATH);
+        Path uploadsPath = Paths.get(PathsManager.UPLOAD_MULTIPART_TEMP_DIR);
         if (Files.notExists(uploadsPath)) {
             Files.createDirectories(uploadsPath);
         }

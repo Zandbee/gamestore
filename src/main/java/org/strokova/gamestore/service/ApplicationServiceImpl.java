@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
+import org.strokova.gamestore.util.PathsManager;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -23,10 +24,6 @@ import java.util.zip.ZipInputStream;
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
-    private static final String UPLOAD_ZIP_PATH = "D:/Temp/gamestore/uploads/zip"; // TODO: move to config?
-    private static final String UPLOAD_IMAGE_PATH = "D:/Temp/gamestore/uploads/images"; // TODO: how write file correctly to work in diff os?
-    private static final String UPLOADS_APPLICATION_PATH = "D:/Temp/gamestore/uploads";
-    private static final String UPLOADS_TEMP_PATH = "D:/Temp/gamestore/uploads/tmp";
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
@@ -57,18 +54,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .setName(appName)
                     .setUserGivenName(userGivenName)
                     .setDescription(description)
-                    .setFilePath(permanentZipPath.toString());
+                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath));
 
             // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
             File image512 = zipDescriptor.getImage512File();
             if (image128 != null) {
                 Path permanentImage128Path = copyFile(image128.toPath(), permanentApplicationDirectory);
-                application.setImage128Path(permanentImage128Path.toString());
+                application.setImage128Path(getRelativePathInUploadsWithCorrectSlash(permanentImage128Path));
             }
             if (image512 != null) {
                 Path permanentImage512Path = copyFile(image512.toPath(), permanentApplicationDirectory);
-                application.setImage512Path(permanentImage512Path.toString());
+                application.setImage512Path(getRelativePathInUploadsWithCorrectSlash(permanentImage512Path));
             }
 
             // save app to DB
@@ -96,14 +93,19 @@ public class ApplicationServiceImpl implements ApplicationService {
         file.delete();
     }
 
-    private static Path copyFile(Path scr, Path dest) {
-        Path destWithFileName = dest.resolve(scr.getFileName());
+    // returns permanent file path
+    private static Path copyFile(Path src, Path dest) {
+        Path absoluteFilePath = dest.resolve(src.getFileName());
         try {
-            Files.copy(scr, destWithFileName, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(src, absoluteFilePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // TODO
         }
-        return destWithFileName;
+        return absoluteFilePath;
+    }
+
+    private static String getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
+        return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath).toString().replace("\\", "/");
     }
 
     @Transactional
@@ -154,6 +156,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             // TODO
         }
 
+        System.out.println("file : " + file.toString());
         return file;
     }
 
@@ -284,7 +287,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private static Path prepareTempDirectory(String userGivenName) {
-        Path tempDir = Paths.get(UPLOADS_TEMP_PATH + File.separator + userGivenName);
+        Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + userGivenName);
         if (Files.notExists(tempDir)) {
             try {
                 Files.createDirectories(tempDir);
@@ -296,7 +299,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private static Path preparePermanentDirectory(String packageName, String appName) {
-        Path permDir = Paths.get(UPLOADS_APPLICATION_PATH +
+        Path permDir = Paths.get(PathsManager.UPLOADS_DIR +
                 File.separator + packageName + File.separator + appName);
         if (Files.notExists(permDir)) {
             try {
@@ -305,7 +308,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 // TODO
             }
         }
-
         return permDir;
     }
 
