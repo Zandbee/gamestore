@@ -12,7 +12,7 @@ public class PathsManager {
         if (home == null) {
             home = System.getProperty("user.home") + "/.gamestore";
         }
-        return home.replace('\\', '/');
+        return home;
     }
 
     private static String initializeUploads() {

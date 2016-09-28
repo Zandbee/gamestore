@@ -54,18 +54,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .setName(appName)
                     .setUserGivenName(userGivenName)
                     .setDescription(description)
-                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath));
+                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString());
 
             // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
             File image512 = zipDescriptor.getImage512File();
             if (image128 != null) {
                 Path permanentImage128Path = copyFile(image128.toPath(), permanentApplicationDirectory);
-                application.setImage128Path(getRelativePathInUploadsWithCorrectSlash(permanentImage128Path));
+                application.setImage128Path(getRelativePathInUploadsWithCorrectSlash(permanentImage128Path).toString());
             }
             if (image512 != null) {
                 Path permanentImage512Path = copyFile(image512.toPath(), permanentApplicationDirectory);
-                application.setImage512Path(getRelativePathInUploadsWithCorrectSlash(permanentImage512Path));
+                application.setImage512Path(getRelativePathInUploadsWithCorrectSlash(permanentImage512Path).toString());
             }
 
             // save app to DB
@@ -104,8 +104,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         return absoluteFilePath;
     }
 
-    private static String getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
-        return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath).toString().replace("\\", "/");
+    private static Path getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
+        return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath);
     }
 
     @Transactional
