@@ -35,7 +35,7 @@ public class RegistrationController {
         return PAGE_REGISTRATION;
     }
 
-    @Transactional // TODO: ??
+    @Transactional // TODO: need this?
     @RequestMapping(method = POST)
     public String processRegistration(User user) {
         userRepository.save(user);

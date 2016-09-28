@@ -30,7 +30,7 @@ public class ShopwindowController {
     }
 
     @ModelAttribute("allCategories")
-    public List<Category> populateRoles() {
+    public List<Category> populateCategories() {
         return Arrays.asList(Category.ALL);
     }
 

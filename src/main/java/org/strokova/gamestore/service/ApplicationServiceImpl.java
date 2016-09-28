@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Application;
+import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.repository.ApplicationRepository;
 import org.strokova.gamestore.util.PathsManager;
 
@@ -32,7 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ApplicationRepository applicationRepository;
 
     @Override
-    public Application saveUploadedApplication(String userGivenName, String description, MultipartFile file) {
+    public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file) {
         // save uploaded zip to temp dir
         Path tempDirectory = prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
@@ -54,6 +55,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .setName(appName)
                     .setUserGivenName(userGivenName)
                     .setDescription(description)
+                    .setCategory(appCategory)
                     .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString());
 
             // copy app images from temp to permanent dir, if they exist

@@ -24,6 +24,7 @@ public class Application {
     private String image128Path; // max = 500
     @Column(name = "image_512_path")
     private String image512Path; // max = 500
+    @Enumerated(EnumType.STRING)
     private Category category;
     @Column(name = "download_num")
     private Integer downloadNumber;
