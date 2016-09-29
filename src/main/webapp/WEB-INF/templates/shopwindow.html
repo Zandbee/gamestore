@@ -52,8 +52,8 @@
                         : ((${image128} != null) ? @{/files/__${image128}__}
                         : @{/assets/images/1.jpg})" alt="Logo">
                     <div class="caption">
-                        <h3 th:text="${app.name}">name</h3>
-                        <p th:text="${app.appPackage}">package</p>
+                        <h3><a th:text="${app.name}" th:href="@{'/' + ${app.id}}">name</a></h3>
+                        <p th:text="${app.description}">description</p>
                     </div>
                 </div>
             </div>

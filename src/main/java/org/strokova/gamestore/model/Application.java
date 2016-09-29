@@ -29,6 +29,8 @@ public class Application {
     @Column(name = "download_num")
     private Integer downloadNumber;
 
+    protected Application() {}
+
     public Integer getId() {
         return id;
     }
