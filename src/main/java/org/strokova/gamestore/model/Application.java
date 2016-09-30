@@ -29,7 +29,7 @@ public class Application {
     @Column(name = "download_num")
     private Integer downloadNumber;
 
-    protected Application() {}
+    public Application() {}
 
     public Integer getId() {
         return id;

@@ -9,6 +9,8 @@
   <p th:text="${app.description}">id</p>
   <p th:text="${app.appPackage}">id</p>
   <p th:text="${app.id}">id</p>
+
+  <a th:href="@{'/' + ${app.id} + '/download'}">Download application</a>
 </body>
 
 </html>
