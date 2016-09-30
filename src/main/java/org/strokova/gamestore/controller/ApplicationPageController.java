@@ -4,6 +4,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
+import org.strokova.gamestore.service.ApplicationService;
+import org.strokova.gamestore.service.ApplicationServiceImpl;
 import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +30,8 @@ public class ApplicationPageController {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+    @Autowired
+    private ApplicationServiceImpl applicationService;
 
     @RequestMapping(method = GET)
     public String viewApplication(
@@ -60,5 +65,7 @@ public class ApplicationPageController {
         } catch (IOException e) {
             e.printStackTrace(); // TODO
         }
+
+        applicationRepository.incrementDownloadNumber(applicationId);
     }
 }

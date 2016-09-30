@@ -56,7 +56,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .setUserGivenName(userGivenName)
                     .setDescription(description)
                     .setCategory(appCategory)
-                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString());
+                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString())
+                    .setDownloadNumber(0); // TODO: default value 0 in mysql does not work
 
             // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
@@ -158,7 +159,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             // TODO
         }
 
-        System.out.println("file : " + file.toString());
         return file;
     }
 
