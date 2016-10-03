@@ -52,6 +52,11 @@ public class ShopwindowController {
         return applicationService.findApplicationsPage(pageNum);
     }
 
+    @ModelAttribute("pageCount")
+    public int getPageCount() {
+        return applicationService.getPageCount();
+    }
+
     @ModelAttribute("popularApplications")
     public Page<Application> findPopularApplications() {
         return applicationService.findMostPopularApplications();

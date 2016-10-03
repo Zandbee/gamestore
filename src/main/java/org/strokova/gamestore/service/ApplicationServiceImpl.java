@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -33,7 +32,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int POPULAR_PAGE_SIZE = 5;
-    private static final int PAGE_SIZE = 15;
+    private static final int PAGE_SIZE = 3;
     public static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
 
     @Autowired
@@ -336,6 +335,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
         return applicationRepository.findAll(request);
+    }
+
+    @Override
+    public int getPageCount() {
+        long applicationsTotalNum = applicationRepository.count();
+        int pageCount = (int) (applicationsTotalNum / PAGE_SIZE);
+        if (applicationsTotalNum % PAGE_SIZE != 0) {
+            ++pageCount;
+        }
+        return pageCount;
     }
 
     private class ZipDescriptor {

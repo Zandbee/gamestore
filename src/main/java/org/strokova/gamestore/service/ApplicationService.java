@@ -17,4 +17,5 @@ public interface ApplicationService {
     Application saveUploadedApplication(String userGivenName, String description, Category category, MultipartFile file) throws IOException;
     Page<Application> findMostPopularApplications();
     Page<Application> findApplicationsPage(int pageNum);
+    int getPageCount();
 }
