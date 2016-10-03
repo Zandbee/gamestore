@@ -33,7 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int POPULAR_PAGE_SIZE = 5;
-    private static final int PAGE_SIZE = 20;
+    private static final int PAGE_SIZE = 15;
     public static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
 
     @Autowired
@@ -326,6 +326,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Page<Application> findMostPopularApplications() {
         PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
+        return applicationRepository.findAll(request);
+    }
+
+    @Override
+    public Page<Application> findApplicationsPage(int pageNum) {
+        if (pageNum != 0) {
+            --pageNum;
+        }
+        PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
         return applicationRepository.findAll(request);
     }
 

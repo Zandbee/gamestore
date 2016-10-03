@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.repository.ApplicationRepository;
@@ -31,7 +32,7 @@ public class ShopwindowController {
     private ApplicationService applicationService;
 
     @RequestMapping(method = GET)
-    public String showShopwindow(){
+    public String showShopwindow() {
         return PAGE_SHOPWINDOW;
     }
 
@@ -45,6 +46,14 @@ public class ShopwindowController {
         return applicationRepository.findAll();
     }
 
+    @ModelAttribute("pageApplications")
+    public Page<Application> findApplicationPage(
+            @RequestParam(value = "pageNum", defaultValue = "0") int pageNum) {
+        return applicationService.findApplicationsPage(pageNum);
+    }
+
     @ModelAttribute("popularApplications")
-    public Page<Application> findPopularApplications() {return applicationService.findMostPopularApplications();}
+    public Page<Application> findPopularApplications() {
+        return applicationService.findMostPopularApplications();
+    }
 }

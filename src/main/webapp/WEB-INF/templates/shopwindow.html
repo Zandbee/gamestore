@@ -39,7 +39,7 @@
 
         <div class="col-md-10" style="background-color:#E6F8E0;">
             <h3>col-sm-8</h3>
-            <div th:each="app : ${allApplications}" class="col-sm-6 col-md-2">
+            <div th:each="app : ${pageApplications}" class="col-sm-6 col-md-2">
                 <div class="thumbnail"
                     th:with="image512=${app.image512Path},image128=${app.image128Path}">
                     <img th:src="(${image512} != null) ? @{/files/__${image512}__}
