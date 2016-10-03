@@ -2,7 +2,7 @@ package org.strokova.gamestore.util;
 
 public class PathsManager {
 
-    public static String HOME_DIR = initializeHome();
+    private static String HOME_DIR = initializeHome();
     public static String UPLOADS_DIR = initializeUploads();
     public static String UPLOADS_TEMP_DIR = initializeUploadsTemp();
     public static String UPLOAD_MULTIPART_TEMP_DIR = initializeUploadMultipartTempDir();

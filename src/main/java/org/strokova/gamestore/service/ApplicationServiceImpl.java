@@ -1,6 +1,9 @@
 package org.strokova.gamestore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -28,6 +32,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
+    private static final int POPULAR_PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 20;
+    public static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -278,16 +285,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return zipDescriptor;
     }
 
-    private static ZipInputStream getZipInputStreamFrom(Path filePath) {
-        ZipInputStream zis = null;
-        try {
-            zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(filePath.toString())));
-        } catch (FileNotFoundException e) {
-            // TODO
-        }
-        return zis;
-    }
-
     private static Path prepareTempDirectory(String userGivenName) {
         Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + userGivenName);
         if (Files.notExists(tempDir)) {
@@ -324,6 +321,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static boolean isValidZipDescriptor(ZipDescriptor zipDescriptor) {
         // TODO: check descriptor here
         return true;
+    }
+
+    @Override
+    public Page<Application> findMostPopularApplications() {
+        PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
+        return applicationRepository.findAll(request);
     }
 
     private class ZipDescriptor {

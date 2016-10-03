@@ -1,19 +1,17 @@
 package org.strokova.gamestore.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.strokova.gamestore.model.Application;
-
-import java.util.List;
 
 /**
  * @author vstrokova, 12.09.2016.
  */
 @Repository
-public interface ApplicationRepository extends PagingAndSortingRepository<Application, Integer> {
+public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
     @Modifying
     @Transactional
