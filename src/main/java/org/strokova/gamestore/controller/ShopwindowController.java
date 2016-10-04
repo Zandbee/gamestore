@@ -41,20 +41,16 @@ public class ShopwindowController {
         return Arrays.asList(Category.ALL);
     }
 
-    @ModelAttribute("allApplications")
-    public List<Application> findApplications() {
-        return applicationRepository.findAll();
-    }
-
     @ModelAttribute("pageApplications")
     public Page<Application> findApplicationPage(
-            @RequestParam(value = "page", defaultValue = "0") int pageNum) {
-        return applicationService.findApplicationsPage(pageNum);
+            @RequestParam(value = "page", defaultValue = "0") int pageNum,
+            @RequestParam(value = "category", defaultValue = "") String category) {
+        return applicationService.findApplicationsPage(pageNum, category);
     }
 
     @ModelAttribute("pageCount")
-    public int getPageCount() {
-        return applicationService.getPageCount();
+    public int getPageCount(@RequestParam(value = "category", defaultValue = "") String category) {
+        return applicationService.getPageCount(category);
     }
 
     @ModelAttribute("popularApplications")

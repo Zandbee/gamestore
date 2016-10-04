@@ -329,17 +329,26 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Page<Application> findApplicationsPage(int pageNum) {
+    public Page<Application> findApplicationsPage(int pageNum, String category) {
         if (pageNum != 0) {
             --pageNum;
         }
         PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
-        return applicationRepository.findAll(request);
+        if (category == null || category.isEmpty()) {
+            return applicationRepository.findAll(request);
+        } else {
+            return applicationRepository.findByCategory(request, Category.valueOf(category));
+        }
     }
 
     @Override
-    public int getPageCount() {
-        long applicationsTotalNum = applicationRepository.count();
+    public int getPageCount(String category) {
+        long applicationsTotalNum;
+        if (category == null || category.isEmpty()) {
+            applicationsTotalNum = applicationRepository.count();
+        } else {
+            applicationsTotalNum = applicationRepository.countByCategory(Category.valueOf(category));
+        }
         int pageCount = (int) (applicationsTotalNum / PAGE_SIZE);
         if (applicationsTotalNum % PAGE_SIZE != 0) {
             ++pageCount;

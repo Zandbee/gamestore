@@ -32,7 +32,8 @@
         <div class="col-md-2" style="background-color:#F8E0F1;">
             <ul class="nav nav-pills nav-stacked">
                 <li th:each="category : ${allCategories}">
-                    <a th:text="#{${'category.' + category}}" th:href="@{#}">item</a>
+                    <a th:text="#{${'category.' + category}}"
+                       th:href="@{/(page=1,category=__${category}__)}">item</a>
                 </li>
             </ul>
         </div>
@@ -52,10 +53,12 @@
                     </div>
                 </div>
             </div>
+
             <div class="row">
                 <div>
-                    <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}">
-                        <li><a th:href="@{?page=__${pageNum}__}" th:text="${pageNum}"></a></li>
+                    <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}" >
+                        <li><a th:href="@{/(page=__${pageNum}__,category=__${#httpServletRequest.getParameter('category')}__)}"
+                               th:text="${pageNum}"></a></li>
                     </ul>
                 </div>
             </div>
