@@ -24,7 +24,7 @@
 
     <div class="row" style="background-color:#E0F2F7;">
         <a class="btn btn-primary" th:href="@{upload}" th:text="#{shopwindow.upload}"
-                style="float: right; margin-right: 5%;">Upload
+           style="float: right; margin-right: 5%;">Upload
         </a>
     </div>
 
@@ -38,18 +38,25 @@
         </div>
 
         <div class="col-md-10" style="background-color:#E6F8E0;">
-            <h3>col-sm-8</h3>
-            <h3 th:text="${pageCount}"></h3>
-            <div th:each="app : ${pageApplications}" class="col-sm-6 col-md-2">
-                <div class="thumbnail"
-                    th:with="image512=${app.image512Path},image128=${app.image128Path}">
-                    <img th:src="(${image512} != null) ? @{/files/__${image512}__}
+            <div class="row">
+                <div th:each="app : ${pageApplications}" class="col-sm-6 col-md-2">
+                    <div class="thumbnail"
+                         th:with="image512=${app.image512Path},image128=${app.image128Path}">
+                        <img th:src="(${image512} != null) ? @{/files/__${image512}__}
                         : ((${image128} != null) ? @{/files/__${image128}__}
                         : @{/assets/images/1.jpg})" alt="Logo">
-                    <div class="caption">
-                        <h3><a th:text="${app.name}" th:href="@{'/' + ${app.id}}">name</a></h3>
-                        <p th:text="${app.description}">description</p>
+                        <div class="caption">
+                            <h3><a th:text="${app.name}" th:href="@{'/' + ${app.id}}">name</a></h3>
+                            <p th:text="${app.description}">description</p>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}">
+                        <li><a th:href="@{?page=__${pageNum}__}" th:text="${pageNum}"></a></li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -48,7 +48,7 @@ public class ShopwindowController {
 
     @ModelAttribute("pageApplications")
     public Page<Application> findApplicationPage(
-            @RequestParam(value = "pageNum", defaultValue = "0") int pageNum) {
+            @RequestParam(value = "page", defaultValue = "0") int pageNum) {
         return applicationService.findApplicationsPage(pageNum);
     }
 
