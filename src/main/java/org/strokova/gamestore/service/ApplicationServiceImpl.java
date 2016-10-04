@@ -33,7 +33,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int POPULAR_PAGE_SIZE = 5;
     private static final int PAGE_SIZE = 3;
-    public static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
+    private static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
+    private static final String APPLICATION_FIELD_NAME_TIME_UPLOADED = "timeUploaded";
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -324,7 +325,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Page<Application> findMostPopularApplications() {
-        PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
+        PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC,
+                APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER, APPLICATION_FIELD_NAME_TIME_UPLOADED);
         return applicationRepository.findAll(request);
     }
 
@@ -333,7 +335,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (pageNum != 0) {
             --pageNum;
         }
-        PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER);
+        PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_TIME_UPLOADED);
         if (category == null || category.isEmpty()) {
             return applicationRepository.findAll(request);
         } else {

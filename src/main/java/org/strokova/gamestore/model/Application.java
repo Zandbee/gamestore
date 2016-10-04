@@ -1,6 +1,7 @@
 package org.strokova.gamestore.model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 /**
  * author: Veronika, 9/4/2016.
@@ -28,6 +29,8 @@ public class Application {
     private Category category;
     @Column(name = "download_num")
     private Integer downloadNumber;
+    @Column(name = "time_uploaded")
+    private Timestamp timeUploaded;
 
     public Application() {}
 
