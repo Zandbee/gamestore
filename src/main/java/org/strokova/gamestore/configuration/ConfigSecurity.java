@@ -40,8 +40,10 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .formLogin()
+                    .loginPage("/login").permitAll()
+                //.and().logout().permitAll() // TODO: how to use it?
                 .and().authorizeRequests()
-                    .antMatchers("/registration", "/login").permitAll()
+                    .antMatchers("/registration").permitAll()
                     .antMatchers("/upload/**").hasRole(Role.DEVELOPER.toString()) //TODO: use name() instead of toString()?
                     .anyRequest().authenticated();
                 //.and().requiresChannel()
