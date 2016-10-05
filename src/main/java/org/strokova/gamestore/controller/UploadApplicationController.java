@@ -3,6 +3,7 @@ package org.strokova.gamestore.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Category;
+import org.strokova.gamestore.model.Role;
 import org.strokova.gamestore.service.ApplicationServiceImpl;
 
 import java.util.Arrays;
@@ -26,11 +28,13 @@ public class UploadApplicationController {
     private ApplicationServiceImpl applicationService;
 
     @RequestMapping(method = GET)
+    @Secured("ROLE_DEVELOPER")
     public String showUploadApplicationPage() {
         return "upload";
     }
 
     @RequestMapping(method = POST)
+    @Secured("ROLE_DEVELOPER")
     public String uploadApplication(
             @RequestParam String userGivenName,
             @RequestParam String description,
