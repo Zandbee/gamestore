@@ -41,8 +41,11 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
         http
                 .formLogin()
                     .loginPage("/login").permitAll()
-                //.and().logout().permitAll() // TODO: how to use it?
+                .and().rememberMe()
+                    .key("gamestoreKey")
+                .and().logout()// TODO: how to use it?
                 .and().authorizeRequests()
+                    .antMatchers("/resources/**").permitAll() // TODO: check if this is really needed (for unauthorized users on ligon and registration pages)
                     .antMatchers("/registration").permitAll()
                     .antMatchers("/upload/**").hasRole(Role.DEVELOPER.toString()) //TODO: use name() instead of toString()?
                     .anyRequest().authenticated();

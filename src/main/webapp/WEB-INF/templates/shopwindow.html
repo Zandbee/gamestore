@@ -5,6 +5,11 @@
 </head>
 
 <body>
+
+<form th:action="@{/logout}" method="POST">
+        <input name="submit" type="submit" th:value="#{logout}"/>
+</form>
+
 <div class="container-fluid">
     <div class="row" style="background-color:#F8E6E0;">
         <h3 th:text="#{shopwindow.mostPopular}">Popular</h3>
