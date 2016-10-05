@@ -62,6 +62,12 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="row">
+                <div th:if="${pageCount == 0}">
+                    <p th:text="#{shopwindow.noApplicationsInCategory}"></p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
