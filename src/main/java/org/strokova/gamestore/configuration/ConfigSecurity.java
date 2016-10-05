@@ -43,11 +43,11 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
                     .loginPage("/login").permitAll()
                 .and().rememberMe()
                     .key("gamestoreKey")
-                .and().logout()// TODO: how to use it?
+                .and().logout()
                 .and().authorizeRequests()
-                    .antMatchers("/resources/**").permitAll() // TODO: check if this is really needed (for unauthorized users on ligon and registration pages)
+                    .antMatchers("/resources/**").permitAll() // TODO: check if this is really needed (for unauthorized users on login and registration pages)
                     .antMatchers("/registration").permitAll()
-                    .antMatchers("/upload/**").hasRole(Role.DEVELOPER.toString()) //TODO: use name() instead of toString()?
+                    .antMatchers("/upload", "/upload/**").hasRole(Role.DEVELOPER.name())
                     .anyRequest().authenticated();
                 //.and().requiresChannel()
                     //.antMatchers("/registration", "/login").requiresSecure(); // send user's credentials over HTTPS

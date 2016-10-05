@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
@@ -27,8 +28,8 @@
         </div>
     </div>
 
-    <div class="row" style="background-color:#E0F2F7;">
-        <a class="btn btn-primary" th:href="@{upload}" th:text="#{shopwindow.upload}"
+    <div class="row" style="background-color:#E0F2F7;" sec:authorize-url="/upload" sec:authorize="hasRole('DEVELOPER')"> <!-- need to apply both to over-secure?-->
+        <a class="btn btn-primary" th:href="@{/upload}" th:text="#{shopwindow.upload}"
            style="float: right; margin-right: 5%;">Upload
         </a>
     </div>
