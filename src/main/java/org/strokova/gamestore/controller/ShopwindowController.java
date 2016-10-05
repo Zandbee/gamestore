@@ -22,7 +22,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
  * @author vstrokova, 09.09.2016.
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping({"/", "/shopwindow"})
 public class ShopwindowController {
     private static final String PAGE_SHOPWINDOW = "shopwindow";
 

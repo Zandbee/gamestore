@@ -55,7 +55,7 @@
             </div>
 
             <div class="row">
-                <div>
+                <div th:unless="${pageCount == 0}">
                     <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}" >
                         <li><a th:href="@{/(page=__${pageNum}__,category=__${#httpServletRequest.getParameter('category')}__)}"
                                th:text="${pageNum}"></a></li>
