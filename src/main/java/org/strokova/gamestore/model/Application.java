@@ -52,7 +52,6 @@ public class Application {
     @Column(name = "download_num")
     private Integer downloadNumber;
 
-    @NotNull
     @Column(name = "time_uploaded")
     private Timestamp timeUploaded;
 
@@ -149,11 +148,6 @@ public class Application {
 
     public Application setDownloadNumber(Integer downloadNumber) {
         this.downloadNumber = downloadNumber;
-        return this;
-    }
-
-    public Application setTimeUploaded(Timestamp timeUploaded) {
-        this.timeUploaded = timeUploaded;
         return this;
     }
 }
