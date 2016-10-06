@@ -3,6 +3,8 @@ package org.strokova.gamestore.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * author: Veronika, 9/4/2016.
@@ -23,6 +25,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Application> applications = new HashSet<>();
 
     protected User() {}
 
@@ -63,5 +68,9 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Set<Application> getApplications() {
+        return applications;
     }
 }

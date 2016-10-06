@@ -1,5 +1,7 @@
 package org.strokova.gamestore.model;
 
+import org.hibernate.annotations.DynamicInsert;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -51,10 +53,16 @@ public class Application {
     private Category category;
 
     @Column(name = "download_num")
-    private Integer downloadNumber;
+    private Integer downloadNumber = 0;
 
     @Column(name = "time_uploaded")
     private Timestamp timeUploaded;
+
+    @ManyToOne
+    @JoinTable(name = "user_application",
+            joinColumns = @JoinColumn(name = "application_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private User user;
 
     public Application() {}
 
@@ -149,6 +157,15 @@ public class Application {
 
     public Application setDownloadNumber(Integer downloadNumber) {
         this.downloadNumber = downloadNumber;
+        return this;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Application setUser(User user) {
+        this.user = user;
         return this;
     }
 }

@@ -3,7 +3,6 @@ package org.strokova.gamestore.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,7 +10,6 @@ import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.repository.ApplicationRepository;
 import org.strokova.gamestore.service.ApplicationService;
-import org.strokova.gamestore.service.ApplicationServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;

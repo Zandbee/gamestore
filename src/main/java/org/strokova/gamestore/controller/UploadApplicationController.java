@@ -4,19 +4,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.form.ApplicationForm;
 import org.strokova.gamestore.model.Category;
-import org.strokova.gamestore.model.Role;
-import org.strokova.gamestore.service.ApplicationServiceImpl;
+import org.strokova.gamestore.service.ApplicationPackageService;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -33,7 +27,7 @@ public class UploadApplicationController {
     private static final String PAGE_UPLOAD = "upload";
 
     @Autowired
-    private ApplicationServiceImpl applicationService;
+    private ApplicationPackageService applicationPackageService;
 
     @RequestMapping(method = GET)
     @Secured("ROLE_DEVELOPER")
@@ -51,7 +45,7 @@ public class UploadApplicationController {
             return PAGE_UPLOAD;
         }
 
-        applicationService.saveUploadedApplication(
+        applicationPackageService.saveUploadedApplication(
                 applicationForm.getUserGivenName(),
                 applicationForm.getDescription(),
                 applicationForm.getCategory(),

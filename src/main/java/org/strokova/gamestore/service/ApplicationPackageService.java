@@ -1,18 +1,11 @@
 package org.strokova.gamestore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
-import org.strokova.gamestore.model.UserApplication;
-import org.strokova.gamestore.model.UserApplicationKey;
-import org.strokova.gamestore.repository.ApplicationRepository;
-import org.strokova.gamestore.repository.UserApplicationRepositiry;
+import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.repository.UserRepository;
 import org.strokova.gamestore.util.PathsManager;
 
@@ -27,28 +20,33 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * @author vstrokova, 12.09.2016.
+ * author: Veronika, 10/6/2016.
  */
 @Service
-public class ApplicationServiceImpl implements ApplicationService {
+public class ApplicationPackageService {
 
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
-    private static final int POPULAR_PAGE_SIZE = 5;
-    private static final int PAGE_SIZE = 3;
-    private static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
-    private static final String APPLICATION_FIELD_NAME_TIME_UPLOADED = "timeUploaded";
 
-    @Autowired
-    private ApplicationRepository applicationRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private UserApplicationRepositiry userApplicationRepositiry;
+    private ApplicationService applicationService;
 
-    @Override
     public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
+
+        // TODO: validate parameters. if null - throw exception
+        User user;
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Bad username"); // TODO: edit
+        } else {
+            user = userRepository.findByUsername(username);
+            if (user == null) {
+                throw new IllegalArgumentException("No such user");
+            }
+        }
+
         // save uploaded zip to temp dir
         Path tempDirectory = prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
@@ -71,8 +69,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .setUserGivenName(userGivenName)
                     .setDescription(description)
                     .setCategory(appCategory)
-                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString())
-                    .setDownloadNumber(0); // TODO: default value 0 in mysql does not work
+                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString());
 
             // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
@@ -87,7 +84,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
 
             // save app to DB
-            saveApplication(application, username);
+            applicationService.saveApplicationWithUser(application, user.getId());
         }
 
         // delete temp dir
@@ -124,18 +121,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private static Path getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
         return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath);
-    }
-
-    @Transactional
-    private Application saveApplication(Application application, String username) {
-        Application savedApplication = applicationRepository.save(application);
-
-        userApplicationRepositiry.save(new UserApplication(
-                new UserApplicationKey(
-                        userRepository.findByUsername(username).getId(),
-                        savedApplication.getId())));
-
-        return savedApplication;
     }
 
     // return saved file location
@@ -273,33 +258,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return zipDescriptor;
     }
 
-    private static ZipDescriptor processRemainingEntriesAndAddToZipDescriptor(
-            ZipInputStream zis, ZipDescriptor zipDescriptor, String image128Name, String image512Name, Path dir) {
-
-        ZipEntry entry;
-        String entryName;
-
-        try {
-            while ((entry = zis.getNextEntry()) != null) {
-                entryName = entry.getName();
-                String entryNameWithoutExtension = entryName.substring(0, entryName.lastIndexOf("."));
-                if (image128Name != null && image128Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage128Name(image128Name);
-                    zipDescriptor.setImage128File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
-                }
-                if (image512Name != null && image512Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage512Name(image512Name);
-                    zipDescriptor.setImage512File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
-                }
-                // TODO check if is image
-            }
-        } catch (IOException e) {
-            // TODO
-        }
-
-        return zipDescriptor;
-    }
-
     private static Path prepareTempDirectory(String userGivenName) {
         Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + userGivenName);
         if (Files.notExists(tempDir)) {
@@ -338,39 +296,31 @@ public class ApplicationServiceImpl implements ApplicationService {
         return true;
     }
 
-    @Override
-    public Page<Application> findMostPopularApplications() {
-        PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC,
-                APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER, APPLICATION_FIELD_NAME_TIME_UPLOADED);
-        return applicationRepository.findAll(request);
-    }
+    private static ZipDescriptor processRemainingEntriesAndAddToZipDescriptor(
+            ZipInputStream zis, ZipDescriptor zipDescriptor, String image128Name, String image512Name, Path dir) {
 
-    @Override
-    public Page<Application> findApplicationsPage(int pageNum, String category) {
-        if (pageNum != 0) {
-            --pageNum;
-        }
-        PageRequest request = new PageRequest(pageNum, PAGE_SIZE, Sort.Direction.DESC, APPLICATION_FIELD_NAME_TIME_UPLOADED);
-        if (category == null || category.isEmpty()) {
-            return applicationRepository.findAll(request);
-        } else {
-            return applicationRepository.findByCategory(request, Category.valueOf(category));
-        }
-    }
+        ZipEntry entry;
+        String entryName;
 
-    @Override
-    public int getPageCount(String category) {
-        long applicationsTotalNum;
-        if (category == null || category.isEmpty()) {
-            applicationsTotalNum = applicationRepository.count();
-        } else {
-            applicationsTotalNum = applicationRepository.countByCategory(Category.valueOf(category));
+        try {
+            while ((entry = zis.getNextEntry()) != null) {
+                entryName = entry.getName();
+                String entryNameWithoutExtension = entryName.substring(0, entryName.lastIndexOf("."));
+                if (image128Name != null && image128Name.equals(entryNameWithoutExtension)) {
+                    zipDescriptor.setImage128Name(image128Name);
+                    zipDescriptor.setImage128File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
+                }
+                if (image512Name != null && image512Name.equals(entryNameWithoutExtension)) {
+                    zipDescriptor.setImage512Name(image512Name);
+                    zipDescriptor.setImage512File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
+                }
+                // TODO check if is image
+            }
+        } catch (IOException e) {
+            // TODO
         }
-        int pageCount = (int) (applicationsTotalNum / PAGE_SIZE);
-        if (applicationsTotalNum % PAGE_SIZE != 0) {
-            ++pageCount;
-        }
-        return pageCount;
+
+        return zipDescriptor;
     }
 
     private class ZipDescriptor {
