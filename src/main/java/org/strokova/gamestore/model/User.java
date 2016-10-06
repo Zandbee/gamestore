@@ -1,6 +1,8 @@
 package org.strokova.gamestore.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * author: Veronika, 9/4/2016.
@@ -10,10 +12,17 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String username; // max = 45
-    private String password; // max = 45
+
+    @NotNull
+    @Size(max = 45, message = "{username.invalidSize}")
+    private String username;
+
+    @NotNull
+    @Size(max = 60, message = "{password.invalidSize}")
+    private String password;
+
     @Enumerated(EnumType.STRING)
-    private Role role; // max = 30
+    private Role role;
 
     protected User() {}
 

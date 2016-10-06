@@ -1,6 +1,8 @@
 package org.strokova.gamestore.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 
 /**
@@ -11,24 +13,46 @@ public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @NotNull
+    @Size(max = 300)
     @Column(name = "package")
-    private String appPackage; // max = 300
+    private String appPackage;
+
     // app name from zip
-    private String name; // max = 40
+    @NotNull
+    @Size(max = 40)
+    private String name;
+
     // app name from user input
+    @Size(max = 40)
     @Column(name = "given_name")
-    private String userGivenName; // max = 40
-    private String description; // max = 300
+    private String userGivenName;
+
+    @Size(max = 300)
+    private String description;
+
+    @NotNull
+    @Size(max = 500)
     @Column(name = "file_path")
-    private String filePath; // max = 500
+    private String filePath;
+
+    @Size(max = 500)
     @Column(name = "image_128_path")
-    private String image128Path; // max = 500
+    private String image128Path;
+
+    @Size(max = 500)
     @Column(name = "image_512_path")
-    private String image512Path; // max = 500
+    private String image512Path;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     private Category category;
+
     @Column(name = "download_num")
     private Integer downloadNumber;
+
+    @NotNull
     @Column(name = "time_uploaded")
     private Timestamp timeUploaded;
 
@@ -72,6 +96,10 @@ public class Application {
 
     public Integer getDownloadNumber() {
         return downloadNumber;
+    }
+
+    public Timestamp getTimeUploaded() {
+        return timeUploaded;
     }
 
     public Application setId(Integer id) {
@@ -121,6 +149,11 @@ public class Application {
 
     public Application setDownloadNumber(Integer downloadNumber) {
         this.downloadNumber = downloadNumber;
+        return this;
+    }
+
+    public Application setTimeUploaded(Timestamp timeUploaded) {
+        this.timeUploaded = timeUploaded;
         return this;
     }
 }

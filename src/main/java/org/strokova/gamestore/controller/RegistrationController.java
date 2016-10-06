@@ -8,12 +8,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.strokova.gamestore.model.Role;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.repository.UserRepository;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +40,14 @@ public class RegistrationController {
 
     @Transactional // TODO: need this?
     @RequestMapping(method = POST)
-    public String processRegistration(User user, Model model) {
+    public String processRegistration(
+            @Valid User user,
+            Errors errors,
+            Model model) {
+        if (errors.hasErrors()) {
+            return PAGE_REGISTRATION;
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         model.asMap().clear();
