@@ -9,6 +9,8 @@ import javax.validation.constraints.Size;
 /**
  * @author vstrokova, 06.10.2016.
  */
+
+// this class is used to validate user input on submitting 'upload' page
 public class ApplicationForm {
     @Size(max = 40, message = "{userGivenName.invalidSize}")
     private String userGivenName;

@@ -29,27 +29,6 @@
         <br>
         <input type="submit" th:value="#{upload.submit}"/>
     </fieldset>
-
-    <!--fieldset>
-        <label for="userGivenName" th:text="#{upload.userGivenName}">App name</label>
-        <input id="userGivenName" type="text" name="userGivenName" required="true"/> <br>
-
-        <label for="description" th:text="#{upload.description}">Description</label>
-        <input id="description" type="text" name="description" required="true"/> <br>
-
-        <label for="category" th:text="#{upload.selectCategory}">Select category</label>
-        <select id="category" name="category" required>
-            <option th:text="#{upload.emptyCategory}" value="" disabled selected>Select</option>
-            <option th:each="cat : ${allCategories}" th:value="${cat}" th:text="#{${'category.' + cat}}">Category
-            </option>
-        </select><br>
-
-        <label for="zip" th:text="#{upload.zipFile}">Add zip file</label>
-        <input id="zip" type="file" name="applicationFile" accept=".zip" required="true"/><br>
-
-        <br>
-        <input type="submit" th:value="#{upload.submit}"/>
-    </fieldset-->
 </form>
 </body>
 

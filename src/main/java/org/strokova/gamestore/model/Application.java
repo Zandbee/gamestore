@@ -25,6 +25,7 @@ public class Application {
     private String name;
 
     // app name from user input
+    @NotNull
     @Size(max = 40)
     @Column(name = "given_name")
     private String userGivenName;

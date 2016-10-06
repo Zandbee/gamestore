@@ -9,7 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
+import org.strokova.gamestore.model.UserApplication;
+import org.strokova.gamestore.model.UserApplicationKey;
 import org.strokova.gamestore.repository.ApplicationRepository;
+import org.strokova.gamestore.repository.UserApplicationRepositiry;
+import org.strokova.gamestore.repository.UserRepository;
 import org.strokova.gamestore.util.PathsManager;
 
 import java.io.*;
@@ -38,9 +42,13 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserApplicationRepositiry userApplicationRepositiry;
 
     @Override
-    public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file) {
+    public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
         // save uploaded zip to temp dir
         Path tempDirectory = prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
@@ -79,7 +87,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
 
             // save app to DB
-            saveApplication(application);
+            saveApplication(application, username);
         }
 
         // delete temp dir
@@ -119,8 +127,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Transactional
-    private Application saveApplication(Application application) {
-        return applicationRepository.save(application);
+    private Application saveApplication(Application application, String username) {
+        Application savedApplication = applicationRepository.save(application);
+
+        userApplicationRepositiry.save(new UserApplication(
+                new UserApplicationKey(
+                        userRepository.findByUsername(username).getId(),
+                        savedApplication.getId())));
+
+        return savedApplication;
     }
 
     // return saved file location

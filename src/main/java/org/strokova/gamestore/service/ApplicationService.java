@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Service
 public interface ApplicationService {
-    Application saveUploadedApplication(String userGivenName, String description, Category category, MultipartFile file) throws IOException;
+    Application saveUploadedApplication(String userGivenName, String description, Category category, MultipartFile file, String username) throws IOException;
     Page<Application> findMostPopularApplications();
     Page<Application> findApplicationsPage(int pageNum, String category);
     int getPageCount(String category);

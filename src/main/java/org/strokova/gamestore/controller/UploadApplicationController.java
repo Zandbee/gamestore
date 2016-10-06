@@ -4,6 +4,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +19,7 @@ import org.strokova.gamestore.model.Role;
 import org.strokova.gamestore.service.ApplicationServiceImpl;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,22 +41,12 @@ public class UploadApplicationController {
         return PAGE_UPLOAD;
     }
 
-    /*@RequestMapping(method = POST)
-    @Secured("ROLE_DEVELOPER")
-    public String uploadApplication(
-            @RequestParam String userGivenName,
-            @RequestParam String description,
-            @RequestParam Category category,
-            @RequestPart("applicationFile") MultipartFile file) {
-        applicationService.saveUploadedApplication(userGivenName, description, category, file);
-        return "upload"; // TODO: redirect
-    }*/
-
     @RequestMapping(method = POST)
     @Secured("ROLE_DEVELOPER")
     public String uploadApplication(
             @Valid ApplicationForm applicationForm,
-            Errors errors) {
+            Errors errors,
+            Principal principal) {
         if (errors.hasErrors()) {
             return PAGE_UPLOAD;
         }
@@ -62,7 +55,8 @@ public class UploadApplicationController {
                 applicationForm.getUserGivenName(),
                 applicationForm.getDescription(),
                 applicationForm.getCategory(),
-                applicationForm.getFile());
+                applicationForm.getFile(),
+                principal.getName());
         return "upload"; // TODO: redirect
     }
 
