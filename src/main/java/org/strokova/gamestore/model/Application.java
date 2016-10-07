@@ -1,7 +1,5 @@
 package org.strokova.gamestore.model;
 
-import org.hibernate.annotations.DynamicInsert;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

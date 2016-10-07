@@ -22,9 +22,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     @Query("update Application set downloadNumber = downloadNumber + 1 where id = ?1")
     int incrementDownloadNumber(int id);
 
-    @Transactional
+    @Transactional // TODO: need this?
     Page<Application> findByCategory(Pageable request, Category category);
 
-    @Transactional
+    @Transactional // TODO: need this?
     int countByCategory(Category category);
 }

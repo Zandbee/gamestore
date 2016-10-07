@@ -3,17 +3,18 @@ package org.strokova.gamestore.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.strokova.gamestore.exception.InternalErrorException;
+import org.strokova.gamestore.exception.InvalidApplicationFileException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
-import org.strokova.gamestore.repository.UserRepository;
+import org.strokova.gamestore.util.FileUtils;
 import org.strokova.gamestore.util.PathsManager;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -25,43 +26,38 @@ import java.util.zip.ZipInputStream;
 @Service
 public class ApplicationPackageService {
 
-    private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private ApplicationService applicationService;
 
     public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
 
-        // TODO: validate parameters. if null - throw exception
-        User user;
-        if (username == null || username.isEmpty()) {
-            throw new IllegalArgumentException("Bad username"); // TODO: edit
-        } else {
-            user = userRepository.findByUsername(username);
-            if (user == null) {
-                throw new IllegalArgumentException("No such user");
-            }
-        }
+        User user = userService.findUserByUsername(username);
+
+        validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file); // TODO: this seems strange?
 
         // save uploaded zip to temp dir
-        Path tempDirectory = prepareTempDirectory(userGivenName);
+        Path tempDirectory = FileUtils.prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
+        if (zipFileTmpPath == null) {
+            throw new InternalErrorException("Cannot save application zip to temporary directory");
+        }
 
         ZipDescriptor zipDescriptor = handleZip(zipFileTmpPath, tempDirectory);
 
         Application application = new Application();
 
-        if (isValidZipDescriptor(zipDescriptor)) {
+        if (isValidZipDescriptor(zipDescriptor)) { // TODO
             String packageName = zipDescriptor.getAppPackage();
             String appName = zipDescriptor.getName();
-            Path permanentApplicationDirectory = preparePermanentDirectory(packageName, appName);
+            Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
 
             // copy app zip from temp to permanent dir
-            Path permanentZipPath = copyFile(zipFileTmpPath, permanentApplicationDirectory);
+            Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
 
             application
                     .setAppPackage(packageName)
@@ -73,13 +69,13 @@ public class ApplicationPackageService {
 
             // copy app images from temp to permanent dir, if they exist
             File image128 = zipDescriptor.getImage128File();
-            File image512 = zipDescriptor.getImage512File();
             if (image128 != null) {
-                Path permanentImage128Path = copyFile(image128.toPath(), permanentApplicationDirectory);
+                Path permanentImage128Path = FileUtils.copyFile(image128.toPath(), permanentApplicationDirectory);
                 application.setImage128Path(getRelativePathInUploadsWithCorrectSlash(permanentImage128Path).toString());
             }
+            File image512 = zipDescriptor.getImage512File();
             if (image512 != null) {
-                Path permanentImage512Path = copyFile(image512.toPath(), permanentApplicationDirectory);
+                Path permanentImage512Path = FileUtils.copyFile(image512.toPath(), permanentApplicationDirectory);
                 application.setImage512Path(getRelativePathInUploadsWithCorrectSlash(permanentImage512Path).toString());
             }
 
@@ -88,35 +84,22 @@ public class ApplicationPackageService {
         }
 
         // delete temp dir
-        deleteFiles(tempDirectory);
+        FileUtils.deleteFile(tempDirectory);
 
         // return application
         return application;
     }
 
-    private static void deleteFiles(Path dir) {
-        deleteFile(new File(dir.toString()));
-    }
-
-    private static void deleteFile(File file) {
-        File[] content = file.listFiles();
-        if (content != null) {
-            for (File f : content) {
-                deleteFile(f);
-            }
+    private static void validateSaveUploadedApplicationRequiredParameters(String userGivenName, Category appCategory, MultipartFile file) {
+        if (userGivenName == null || userGivenName.isEmpty()) {
+            throw new IllegalArgumentException("userGivenName is null or empty");
         }
-        file.delete();
-    }
-
-    // returns permanent file path
-    private static Path copyFile(Path src, Path dest) {
-        Path absoluteFilePath = dest.resolve(src.getFileName());
-        try {
-            Files.copy(src, absoluteFilePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            // TODO
+        if (appCategory == null) {
+            throw new IllegalArgumentException("No application category");
         }
-        return absoluteFilePath;
+        if (file == null) {
+            throw new IllegalArgumentException("No application file");
+        }
     }
 
     private static Path getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
@@ -124,22 +107,26 @@ public class ApplicationPackageService {
     }
 
     // return saved file location
-    private Path saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
-        Path filePath = null;
+    private static Path saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
+        Path filePath;
         try {
             String fileName = file.getOriginalFilename();
-            if (fileName != null && !fileName.isEmpty() && fileName.endsWith(ZIP_FILE_EXTENSION)) { // TODO: do smth if not zip (already restricting in html?
-                filePath = Paths.get(tempDir + File.separator + fileName);
-                file.transferTo(new File(filePath.toString()));
+            if (fileName == null || fileName.isEmpty()) {
+                throw new IllegalArgumentException("Cannot read uploaded file name");
             }
+            if (!FileUtils.isZip(fileName)) {
+                throw new IllegalArgumentException("Uploaded file is not zip");
+            }
+            filePath = Paths.get(tempDir + File.separator + fileName);
+            file.transferTo(new File(filePath.toString()));
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Cannot save application zip to temporary directory", e);
         }
         return filePath;
     }
 
     private static File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
-        if (fileName.contains(ZIP_INNER_FILE_SEPARATOR)) { // TODO: this is not pretty
+        if (isInsideInnerFolderInZip(fileName)) {
             int pos = fileName.lastIndexOf(ZIP_INNER_FILE_SEPARATOR);
             dir = Paths.get(dir.toString() +
                     fileName.substring(0, pos).replace(ZIP_INNER_FILE_SEPARATOR, File.separator));
@@ -150,7 +137,7 @@ public class ApplicationPackageService {
             try {
                 Files.createDirectories(dir);
             } catch (IOException e) {
-                // TODO
+                throw new InternalErrorException("Cannot create directory: " + dir, e);
             }
         }
 
@@ -163,10 +150,14 @@ public class ApplicationPackageService {
                 fos.write(buf, 0, length);
             }
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Cannot save file: " + file, e);
         }
 
         return file;
+    }
+
+    private static boolean isInsideInnerFolderInZip(String fileName) {
+        return fileName.contains(ZIP_INNER_FILE_SEPARATOR);
     }
 
     private ZipDescriptor handleZip(Path zipFilePath, Path tempDir) {
@@ -178,31 +169,32 @@ public class ApplicationPackageService {
 
         try (ZipInputStream zis =
                      new ZipInputStream(new BufferedInputStream
-                             (new FileInputStream(zipFilePath.toString())))){
+                             (new FileInputStream(zipFilePath.toString())))) {
             while ((entry = zis.getNextEntry()) != null) {
                 entryName = entry.getName();
-                if (isTxt(entryName)) {
+                if (FileUtils.isTxt(entryName)) {
                     processTxtAndAddToZipDescriptor(zis, zipDescriptor);
                     if (zipDescriptor.getName() == null || zipDescriptor.getAppPackage() == null) {
-                        // this is not a valid txt - invalid zip - return
-                    } else {
-                        txtImage128 = zipDescriptor.getImage128Name();
-                        txtImage512 = zipDescriptor.getImage512Name();
-
-                        if (txtImage128 != null || txtImage512 != null) {
-                            // check entryFiles
-                            processAlreadyReadEntriesAndAddToZipDescriptor(entryFiles, zipDescriptor, txtImage128, txtImage512);
-
-                            // check remaining zis' entries
-                            processRemainingEntriesAndAddToZipDescriptor(zis, zipDescriptor, txtImage128, txtImage512, tempDir);
-                        }
+                        throw new InvalidApplicationFileException("Text file in application zip must contain 'name' and 'package' fields");
                     }
+
+                    // images are optional
+                    txtImage128 = zipDescriptor.getImage128Name();
+                    txtImage512 = zipDescriptor.getImage512Name();
+
+                    if (txtImage128 != null || txtImage512 != null) {
+                        // check entryFiles
+                        processAlreadyReadEntriesAndAddToZipDescriptor(entryFiles, zipDescriptor, txtImage128, txtImage512);
+                        // check remaining zip entries
+                        processRemainingEntriesAndAddToZipDescriptor(zis, zipDescriptor, txtImage128, txtImage512, tempDir);
+                    }
+
                 } else {
                     entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
                 }
             }
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Error parsing application zip");
         }
 
         return zipDescriptor;
@@ -232,7 +224,7 @@ public class ApplicationPackageService {
                 }
             }
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Error reading text file in application zip");
         }
 
         return zipDescriptor;
@@ -258,44 +250,6 @@ public class ApplicationPackageService {
         return zipDescriptor;
     }
 
-    private static Path prepareTempDirectory(String userGivenName) {
-        Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + userGivenName);
-        if (Files.notExists(tempDir)) {
-            try {
-                Files.createDirectories(tempDir);
-            } catch (IOException e) {
-                // TODO
-            }
-        }
-        return tempDir;
-    }
-
-    private static Path preparePermanentDirectory(String packageName, String appName) {
-        Path permDir = Paths.get(PathsManager.UPLOADS_DIR +
-                File.separator + packageName + File.separator + appName);
-        if (Files.notExists(permDir)) {
-            try {
-                Files.createDirectories(permDir);
-            } catch (IOException e) {
-                // TODO
-            }
-        }
-        return permDir;
-    }
-
-    private static boolean isTxt(String fileName) {
-        return fileName.endsWith(".txt");
-    }
-
-    private static boolean isImage(Path imagePath) throws IOException {
-        return Files.probeContentType(imagePath).startsWith("image"); // TODO: "image/"?;
-    }
-
-    private static boolean isValidZipDescriptor(ZipDescriptor zipDescriptor) {
-        // TODO: check descriptor here
-        return true;
-    }
-
     private static ZipDescriptor processRemainingEntriesAndAddToZipDescriptor(
             ZipInputStream zis, ZipDescriptor zipDescriptor, String image128Name, String image512Name, Path dir) {
 
@@ -317,10 +271,15 @@ public class ApplicationPackageService {
                 // TODO check if is image
             }
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Error parsing application zip", e);
         }
 
         return zipDescriptor;
+    }
+
+    private static boolean isValidZipDescriptor(ZipDescriptor zipDescriptor) {
+        // TODO: check descriptor here
+        return true;
     }
 
     private class ZipDescriptor {
@@ -346,7 +305,7 @@ public class ApplicationPackageService {
 
         public String getAppPackage() {
             return appPackage;
-        }
+        } // TODO: can be private?
 
         public void setAppPackage(String appPackage) {
             this.appPackage = appPackage;
@@ -356,7 +315,7 @@ public class ApplicationPackageService {
             return image128File;
         }
 
-        public void setImage128File(File image128File) {
+        private void setImage128File(File image128File) {
             this.image128File = image128File;
         }
 

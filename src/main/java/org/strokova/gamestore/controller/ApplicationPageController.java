@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.strokova.gamestore.exception.ApplicationFileNotFoundException;
+import org.strokova.gamestore.exception.ApplicationNotFoundException;
+import org.strokova.gamestore.exception.FileTransferException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
 import org.strokova.gamestore.service.ApplicationService;
@@ -16,6 +19,7 @@ import org.strokova.gamestore.util.PathsManager;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * author: Veronika, 9/29/2016.
@@ -26,14 +30,18 @@ public class ApplicationPageController {
 
     @Autowired
     private ApplicationRepository applicationRepository;
-    @Autowired
-    private ApplicationService applicationService;
 
     @RequestMapping(method = GET)
     public String viewApplication(
             @PathVariable int applicationId,
             Model model) {
-        model.addAttribute("app", applicationRepository.findOne(applicationId));
+        Application application = applicationRepository.findOne(applicationId);
+
+        if (application == null) {
+            throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
+        }
+
+        model.addAttribute("app", application);
         return "applicationPage";
     }
 
@@ -42,13 +50,16 @@ public class ApplicationPageController {
             HttpServletResponse response,
             @PathVariable int applicationId) {
         Application application = applicationRepository.findOne(applicationId);
-        String filePath = application.getFilePath();
 
+        if (application == null) {
+            throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
+        }
+
+        String filePath = application.getFilePath();
         File applicationFile = new File(PathsManager.UPLOADS_DIR + File.separator + filePath);
 
         if (Files.notExists(applicationFile.toPath())) {
-            // TODO
-            return;
+            throw new ApplicationFileNotFoundException("Application file was not found at path: " + applicationFile);
         }
 
         String mimeType = "application/zip";
@@ -59,7 +70,7 @@ public class ApplicationPageController {
             FileCopyUtils.copy(new BufferedInputStream(new FileInputStream(applicationFile)),
                     response.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace(); // TODO
+            throw new FileTransferException("Cannot send " + applicationFile, e);
         }
 
         applicationRepository.incrementDownloadNumber(applicationId);

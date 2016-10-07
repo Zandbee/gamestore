@@ -38,7 +38,6 @@ public class RegistrationController {
         return PAGE_REGISTRATION;
     }
 
-    @Transactional // TODO: need this?
     @RequestMapping(method = POST)
     public String processRegistration(
             @Valid User user,
@@ -51,6 +50,7 @@ public class RegistrationController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         model.asMap().clear();
+        // TODO: register this new user implicitly, otherwise they have to login after registration
         return "redirect: " + PAGE_SHOPWINDOW;
     }
 
