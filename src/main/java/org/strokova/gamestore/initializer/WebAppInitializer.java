@@ -3,6 +3,7 @@ package org.strokova.gamestore.initializer;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import org.strokova.gamestore.configuration.ConfigRoot;
 import org.strokova.gamestore.configuration.ConfigWeb;
+import org.strokova.gamestore.exception.InternalErrorException;
 import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.MultipartConfigElement;
@@ -46,7 +47,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
         registration.setMultipartConfig(
                 new MultipartConfigElement(uploadsPath.toString(), MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD));
         } catch (IOException e) {
-            // TODO
+            throw new InternalErrorException("Cannot create directory");
         }
     }
 }

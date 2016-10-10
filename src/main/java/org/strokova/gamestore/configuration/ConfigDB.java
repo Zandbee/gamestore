@@ -13,6 +13,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.strokova.gamestore.model.Models;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -26,6 +27,9 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 public class ConfigDB {
 
+    private static final String DATASOURCE_NAME_JDBC_GAMESTORE = "jdbc/gamestore";
+    private static final String PROPERTIES_KEY_HIBERNATE_DIALECT = "hibernate.dialect";
+
     @Autowired
     private Environment env;
 
@@ -33,8 +37,7 @@ public class ConfigDB {
     public DataSource dataSource() {
         final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();
         dsLookup.setResourceRef(true);
-        DataSource dataSource = dsLookup.getDataSource("jdbc/gamestore");
-        return dataSource;
+        return dsLookup.getDataSource(DATASOURCE_NAME_JDBC_GAMESTORE);
     }
 
     @Bean
@@ -43,7 +46,7 @@ public class ConfigDB {
         adapter.setDatabase(Database.MYSQL);
         adapter.setShowSql(true);
         adapter.setGenerateDdl(false);
-        adapter.setDatabasePlatform(env.getProperty("hibernate.dialect")); // TODO: extract strings
+        adapter.setDatabasePlatform(env.getProperty(PROPERTIES_KEY_HIBERNATE_DIALECT));
         return adapter;
     }
 
@@ -52,7 +55,7 @@ public class ConfigDB {
         LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
         emfb.setDataSource(dataSource);
         emfb.setJpaVendorAdapter(jpaVendorAdapter);
-        emfb.setPackagesToScan("org.strokova.gamestore.model");
+        emfb.setPackagesToScan(Models.class.getPackage().getName());
 
         return emfb;
     }

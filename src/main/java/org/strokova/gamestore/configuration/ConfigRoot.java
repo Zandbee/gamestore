@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * @author vstrokova, 06.09.2016.
  */
 @Configuration
-@ComponentScan(basePackages = {"org.strokova.gamestore"},
+@ComponentScan(basePackages = "org.strokova.gamestore",
         excludeFilters = {@Filter(type = FilterType.ANNOTATION, value = EnableWebMvc.class)})
 public class ConfigRoot {
 }

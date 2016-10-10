@@ -13,13 +13,11 @@ import org.strokova.gamestore.exception.ApplicationNotFoundException;
 import org.strokova.gamestore.exception.FileTransferException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
-import org.strokova.gamestore.service.ApplicationService;
 import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * author: Veronika, 9/29/2016.
@@ -27,6 +25,9 @@ import java.nio.file.Path;
 @Controller
 @RequestMapping("/{applicationId}")
 public class ApplicationPageController {
+
+    private static final String PAGE_APPLICATION = "applicationPage";
+    private static final String MIME_ZIP = "application/zip";
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -42,7 +43,7 @@ public class ApplicationPageController {
         }
 
         model.addAttribute("app", application);
-        return "applicationPage";
+        return PAGE_APPLICATION;
     }
 
     // TODO: need transaction here? move to service?
@@ -63,9 +64,8 @@ public class ApplicationPageController {
             throw new ApplicationFileNotFoundException("Application file was not found at path: " + applicationFile);
         }
 
-        String mimeType = "application/zip";
-        response.setContentType(mimeType);
-        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + applicationFile.getName());
+        response.setContentType(MIME_ZIP);
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + applicationFile.getName()); // TODO: can leave these strings hardcoded?
         response.setContentLength((int) applicationFile.length());
         try {
             FileCopyUtils.copy(new BufferedInputStream(new FileInputStream(applicationFile)),

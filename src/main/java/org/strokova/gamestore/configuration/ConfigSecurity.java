@@ -40,7 +40,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .formLogin()
-                    .loginPage("/login").permitAll()
+                    .loginPage("/login").permitAll() // TODO: can leave these strings hardcoded?
                 .and().rememberMe()
                     .key("gamestoreKey")
                 .and().logout()
