@@ -32,7 +32,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
         auth.jdbcAuthentication().dataSource(dataSource)
                 .usersByUsernameQuery(USERS_BY_USERNAME_QUERY)
                 .authoritiesByUsernameQuery(AUTHORITIES_BY_USERNAME_QUERY)
-                .passwordEncoder(new BCryptPasswordEncoder()); // TODO: use passwordEncoder() instead of new?
+                .passwordEncoder(passwordEncoder());
 
     }
 
@@ -40,7 +40,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .formLogin()
-                    .loginPage("/login").permitAll() // TODO: can leave these strings hardcoded?
+                    .loginPage("/login").permitAll()
                 .and().rememberMe()
                     .key("gamestoreKey")
                 .and().logout()

@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.strokova.gamestore.model.Models;
+import org.strokova.gamestore.repository.Repositories;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -23,7 +24,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.strokova.gamestore.repository")
+@EnableJpaRepositories(basePackageClasses = Repositories.class)
 @PropertySource("classpath:application.properties")
 public class ConfigDB {
 

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.strokova.gamestore.controller.Controllers;
 import org.strokova.gamestore.util.PathsManager;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
@@ -27,7 +28,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan("org.strokova.gamestore.controller")
+@ComponentScan(basePackageClasses = Controllers.class)
 public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
     private static final String ENCODING_UTF_8 = "UTF-8";

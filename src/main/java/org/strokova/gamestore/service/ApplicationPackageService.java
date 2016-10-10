@@ -38,7 +38,7 @@ public class ApplicationPackageService {
 
         User user = userService.findUserByUsername(username);
 
-        validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file); // TODO: this seems strange?
+        validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file);
 
         // save uploaded zip to temp dir
         Path tempDirectory = FileUtils.prepareTempDirectory(userGivenName);

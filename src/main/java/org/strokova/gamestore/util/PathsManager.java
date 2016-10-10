@@ -7,14 +7,10 @@ public class PathsManager {
     public static String UPLOADS_TEMP_DIR = initializeUploadsTemp();
     public static String UPLOAD_MULTIPART_TEMP_DIR = initializeUploadMultipartTempDir();
 
-    private static final String ENVIRONMENT_GAMESTORE_HOME = "GAMESTORE_HOME";
-    private static final String SYSTEM_USER_HOME = "user.home";
-    private static final String GAMESTORE_HOME_DIR
-
     private static String initializeHome() {
-        String home = System.getenv().get(ENVIRONMENT_GAMESTORE_HOME);
+        String home = System.getenv().get("GAMESTORE_HOME");
         if (home == null) {
-            home = System.getProperty(SYSTEM_USER_HOME) + "/.gamestore";
+            home = System.getProperty("user.home") + "/.gamestore";
         }
         return home;
     }

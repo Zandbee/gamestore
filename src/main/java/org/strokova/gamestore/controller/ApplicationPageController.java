@@ -36,7 +36,7 @@ public class ApplicationPageController {
     public String viewApplication(
             @PathVariable int applicationId,
             Model model) {
-        Application application = applicationRepository.findOne(applicationId);
+        Application application = applicationRepository.findOne(applicationId); // TODO: move to getApp() to service
 
         if (application == null) {
             throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
@@ -46,7 +46,6 @@ public class ApplicationPageController {
         return PAGE_APPLICATION;
     }
 
-    // TODO: need transaction here? move to service?
     @RequestMapping(value = "/download", method = GET)
     public void downloadApplicationFile(
             HttpServletResponse response,
@@ -65,7 +64,7 @@ public class ApplicationPageController {
         }
 
         response.setContentType(MIME_ZIP);
-        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + applicationFile.getName()); // TODO: can leave these strings hardcoded?
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + applicationFile.getName());
         response.setContentLength((int) applicationFile.length());
         try {
             FileCopyUtils.copy(new BufferedInputStream(new FileInputStream(applicationFile)),
