@@ -45,6 +45,7 @@ public class ApplicationPageController {
         return "applicationPage";
     }
 
+    // TODO: need transaction here? move to service?
     @RequestMapping(value = "/download", method = GET)
     public void downloadApplicationFile(
             HttpServletResponse response,

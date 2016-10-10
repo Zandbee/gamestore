@@ -1,7 +1,6 @@
 package org.strokova.gamestore.repository;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +14,7 @@ import org.strokova.gamestore.model.Category;
  * @author vstrokova, 12.09.2016.
  */
 @Repository
+@Transactional(readOnly = true)
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
     @Modifying
@@ -22,9 +22,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     @Query("update Application set downloadNumber = downloadNumber + 1 where id = ?1")
     int incrementDownloadNumber(int id);
 
-    @Transactional // TODO: need this?
     Page<Application> findByCategory(Pageable request, Category category);
 
-    @Transactional // TODO: need this?
     int countByCategory(Category category);
 }

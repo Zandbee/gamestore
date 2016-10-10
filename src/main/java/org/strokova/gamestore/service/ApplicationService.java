@@ -51,14 +51,14 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-    @Transactional
+    @Transactional // TODO: need this? - only one repository call is done
     public Page<Application> findMostPopularApplications() {
         PageRequest request = new PageRequest(0, POPULAR_PAGE_SIZE, Sort.Direction.DESC,
                 APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER, APPLICATION_FIELD_NAME_TIME_UPLOADED);
         return applicationRepository.findAll(request);
     }
 
-    @Transactional
+    @Transactional // TODO: need this? - only one repository call is done
     public Page<Application> findApplicationsPage(int pageNum, String category) {
         if (pageNum != 0) {
             --pageNum;
@@ -71,7 +71,7 @@ public class ApplicationService {
         }
     }
 
-    @Transactional
+    @Transactional // TODO: need this? - only one repository call is done
     public int getPageCount(String category) {
         long applicationsTotalNum;
         if (category == null || category.isEmpty()) {

@@ -9,8 +9,8 @@ import org.strokova.gamestore.model.User;
  * @author vstrokova, 05.09.2016.
  */
 @Repository
+@Transactional(readOnly = true)
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    @Transactional // TODO: need this?
     User findByUsername(String username);
 }

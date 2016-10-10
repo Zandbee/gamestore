@@ -25,8 +25,6 @@ public class ShopwindowController {
     private static final String PAGE_SHOPWINDOW = "shopwindow";
 
     @Autowired
-    private ApplicationRepository applicationRepository;
-    @Autowired
     private ApplicationService applicationService;
 
     @RequestMapping(method = GET)

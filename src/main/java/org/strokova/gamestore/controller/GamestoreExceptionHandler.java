@@ -10,7 +10,8 @@ import org.strokova.gamestore.exception.*;
 @ControllerAdvice
 public class GamestoreExceptionHandler {
 
-    // TODO: add logger.log(e.stackTrace)
+    // TODO: add logger.log(e.stackTrace) in each handler
+    // TODO: TRACE logging for DB
 
     private static final String PAGE_APPLICATION_NOT_FOUND = "error/applicationNotFound";
     private static final String PAGE_FILE_TRANSFER_ERROR = "error/fileTransferError";
