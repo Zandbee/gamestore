@@ -18,7 +18,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Transactional
-    public User findUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         if (username == null || username.isEmpty()) {
             throw new AuthorizationRequiredException("Bad username");
         }

@@ -35,59 +35,58 @@ public class ApplicationPackageService {
     private ApplicationService applicationService;
 
     public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
-
-        User user = userService.findUserByUsername(username);
+        User user = userService.getUserByUsername(username);
 
         validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file);
 
         // save uploaded zip to temp dir
         Path tempDirectory = FileUtils.prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
-        if (zipFileTmpPath == null) {
-            throw new InternalErrorException("Cannot save application zip to temporary directory");
-        }
 
         ZipDescriptor zipDescriptor = handleZip(zipFileTmpPath, tempDirectory);
 
-        Application application = new Application();
+        try {
+            if (isValidZipDescriptor(zipDescriptor)) { // TODO
+                String packageName = zipDescriptor.getAppPackage();
+                String appName = zipDescriptor.getName();
 
-        if (isValidZipDescriptor(zipDescriptor)) { // TODO
-            String packageName = zipDescriptor.getAppPackage();
-            String appName = zipDescriptor.getName();
-            Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
+                Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
+                Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
 
-            // copy app zip from temp to permanent dir
-            Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
+                Application application =
+                        newApplication(userGivenName, description, appCategory, packageName, appName, permanentZipPath);
 
-            application
-                    .setAppPackage(packageName)
-                    .setName(appName)
-                    .setUserGivenName(userGivenName)
-                    .setDescription(description)
-                    .setCategory(appCategory)
-                    .setFilePath(getRelativePathInUploadsWithCorrectSlash(permanentZipPath).toString());
+                // copy app images from temp to permanent dir, if they exist
+                application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
+                application.setImage512Path(copyTo(zipDescriptor.getImage512File(), permanentApplicationDirectory));
 
-            // copy app images from temp to permanent dir, if they exist
-            File image128 = zipDescriptor.getImage128File();
-            if (image128 != null) {
-                Path permanentImage128Path = FileUtils.copyFile(image128.toPath(), permanentApplicationDirectory);
-                application.setImage128Path(getRelativePathInUploadsWithCorrectSlash(permanentImage128Path).toString());
+                applicationService.saveApplicationWithUser(application, user.getId());
+
+                return application;
+            } else {
+                throw new IllegalArgumentException("Zip descriptor is not valid!");
             }
-            File image512 = zipDescriptor.getImage512File();
-            if (image512 != null) {
-                Path permanentImage512Path = FileUtils.copyFile(image512.toPath(), permanentApplicationDirectory);
-                application.setImage512Path(getRelativePathInUploadsWithCorrectSlash(permanentImage512Path).toString());
-            }
-
-            // save app to DB
-            applicationService.saveApplicationWithUser(application, user.getId());
+        } finally {
+            FileUtils.deleteFile(tempDirectory);
         }
+    }
 
-        // delete temp dir
-        FileUtils.deleteFile(tempDirectory);
+    private static Application newApplication(String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
+        return new Application()
+                .setAppPackage(packageName)
+                .setName(appName)
+                .setUserGivenName(userGivenName)
+                .setDescription(description)
+                .setCategory(appCategory)
+                .setFilePath(getRelativePathInUploads(permanentZipPath).toString());
+    }
 
-        // return application
-        return application;
+    private static String copyTo(File f, Path dir) {
+        if (f == null) {
+            return null;
+        }
+        Path p = FileUtils.copyFile(f.toPath(), dir);
+        return getRelativePathInUploads(p).toString();
     }
 
     private static void validateSaveUploadedApplicationRequiredParameters(String userGivenName, Category appCategory, MultipartFile file) {
@@ -102,13 +101,12 @@ public class ApplicationPackageService {
         }
     }
 
-    private static Path getRelativePathInUploadsWithCorrectSlash(Path absolutePath) {
+    private static Path getRelativePathInUploads(Path absolutePath) {
         return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath);
     }
 
     // return saved file location
     private static Path saveApplicationZipToTempDirectory(MultipartFile file, Path tempDir) {
-        Path filePath;
         try {
             String fileName = file.getOriginalFilename();
             if (fileName == null || fileName.isEmpty()) {
@@ -117,12 +115,12 @@ public class ApplicationPackageService {
             if (!FileUtils.isZip(fileName)) {
                 throw new IllegalArgumentException("Uploaded file is not zip");
             }
-            filePath = Paths.get(tempDir + File.separator + fileName);
+            Path filePath = Paths.get(tempDir + File.separator + fileName);
             file.transferTo(new File(filePath.toString()));
+            return filePath;
         } catch (IOException e) {
             throw new InternalErrorException("Cannot save application zip to temporary directory", e);
         }
-        return filePath;
     }
 
     private static File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
@@ -207,20 +205,13 @@ public class ApplicationPackageService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(txtFileInputStream, ENCODING_UTF_8));
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(ZipDescriptor.TXT_NAME)) {
-                    zipDescriptor.setName(line.substring(ZipDescriptor.TXT_NAME.length()).trim());
-                    continue;
-                }
-                if (line.startsWith(ZipDescriptor.TXT_PACKAGE)) {
-                    zipDescriptor.setAppPackage(line.substring(ZipDescriptor.TXT_PACKAGE.length()).trim());
-                    continue;
-                }
-                if (line.startsWith(ZipDescriptor.TXT_IMAGE_128)) {
-                    zipDescriptor.setImage128Name(line.substring(ZipDescriptor.TXT_IMAGE_128.length()).trim());
-                    continue;
-                }
-                if (line.startsWith(ZipDescriptor.TXT_IMAGE_512)) {
-                    zipDescriptor.setImage512Name(line.substring(ZipDescriptor.TXT_IMAGE_512.length()).trim());
-                    continue;
+                    zipDescriptor.setName(extractFieldValue(line, ZipDescriptor.TXT_NAME));
+                } else if (line.startsWith(ZipDescriptor.TXT_PACKAGE)) {
+                    zipDescriptor.setAppPackage(extractFieldValue(line, ZipDescriptor.TXT_PACKAGE));
+                } else if (line.startsWith(ZipDescriptor.TXT_IMAGE_128)) {
+                    zipDescriptor.setImage128Name(extractFieldValue(line, ZipDescriptor.TXT_IMAGE_128));
+                } else if (line.startsWith(ZipDescriptor.TXT_IMAGE_512)) {
+                    zipDescriptor.setImage512Name(extractFieldValue(line, ZipDescriptor.TXT_IMAGE_512));
                 }
             }
         } catch (IOException e) {
@@ -228,6 +219,10 @@ public class ApplicationPackageService {
         }
 
         return zipDescriptor;
+    }
+
+    private static String extractFieldValue(String txtLine, String field) {
+        return txtLine.substring(field.length()).trim();
     }
 
     private static ZipDescriptor processAlreadyReadEntriesAndAddToZipDescriptor(
