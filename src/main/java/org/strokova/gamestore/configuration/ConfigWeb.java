@@ -59,7 +59,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     }
 
     @Bean
-    public TemplateEngine templateEngine() { //TODO: private? not needed anywhere else - not a bean?
+    public TemplateEngine templateEngine() {
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setEnableSpringELCompiler(true);
         engine.setTemplateResolver(templateResolver());

@@ -3,6 +3,10 @@ package org.strokova.gamestore.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,8 +51,12 @@ public class RegistrationController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+
+        // let Spring know the user is already authenticated - don't make user login after registration
+        Authentication auth = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         model.asMap().clear();
-        // TODO: register this new user implicitly, otherwise they have to login after registration
         return "redirect: " + PAGE_SHOPWINDOW;
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.strokova.gamestore.exception.ApplicationNotFoundException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
@@ -49,6 +50,17 @@ public class ApplicationService {
         user.getApplications().add(application);
 
         return applicationRepository.save(application);
+    }
+
+    @Transactional(readOnly = true)
+    public Application getApplicationById(int applicationId) {
+        Application application = applicationRepository.findOne(applicationId);
+
+        if (application == null) {
+            throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
+        }
+
+        return application;
     }
 
     @Transactional(readOnly = true)

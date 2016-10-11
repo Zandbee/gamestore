@@ -1,8 +1,12 @@
 package org.strokova.gamestore.model;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -72,5 +76,22 @@ public class User {
 
     public Set<Application> getApplications() {
         return applications;
+    }
+
+    private String getAuthority() {
+        return "ROLE_" + role;
+    }
+
+    public Collection<GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        String authority = this.getAuthority();
+        GrantedAuthority grantedAuthority = new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                return authority;
+            }
+        };
+        grantedAuthorities.add(grantedAuthority);
+        return grantedAuthorities;
     }
 }

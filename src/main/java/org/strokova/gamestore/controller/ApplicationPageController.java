@@ -13,6 +13,7 @@ import org.strokova.gamestore.exception.ApplicationNotFoundException;
 import org.strokova.gamestore.exception.FileTransferException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
+import org.strokova.gamestore.service.ApplicationService;
 import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,17 +32,14 @@ public class ApplicationPageController {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+    @Autowired
+    private ApplicationService applicationService;
 
     @RequestMapping(method = GET)
     public String viewApplication(
             @PathVariable int applicationId,
             Model model) {
-        Application application = applicationRepository.findOne(applicationId); // TODO: move to getApp() to service
-
-        if (application == null) {
-            throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
-        }
-
+        Application application = applicationService.getApplicationById(applicationId);
         model.addAttribute("app", application);
         return PAGE_APPLICATION;
     }
@@ -50,11 +48,7 @@ public class ApplicationPageController {
     public void downloadApplicationFile(
             HttpServletResponse response,
             @PathVariable int applicationId) {
-        Application application = applicationRepository.findOne(applicationId);
-
-        if (application == null) {
-            throw new ApplicationNotFoundException("Application with ID = " + applicationId + " was not found");
-        }
+        Application application = applicationService.getApplicationById(applicationId);
 
         String filePath = application.getFilePath();
         File applicationFile = new File(PathsManager.UPLOADS_DIR + File.separator + filePath);
