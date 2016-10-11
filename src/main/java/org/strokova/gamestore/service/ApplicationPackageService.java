@@ -285,10 +285,10 @@ public class ApplicationPackageService {
         private File image128File;
         private File image512File;
 
-        public static final String TXT_NAME = "name:";
-        public static final String TXT_PACKAGE = "package:";
-        public static final String TXT_IMAGE_128 = "picture_128:";
-        public static final String TXT_IMAGE_512 = "picture_512:";
+        private static final String TXT_NAME = "name:";
+        private static final String TXT_PACKAGE = "package:";
+        private static final String TXT_IMAGE_128 = "picture_128:";
+        private static final String TXT_IMAGE_512 = "picture_512:";
 
         public String getName() {
             return name;
@@ -298,15 +298,15 @@ public class ApplicationPackageService {
             this.name = name;
         }
 
-        public String getAppPackage() {
+        private String getAppPackage() {
             return appPackage;
-        } // TODO: can be private?
+        }
 
-        public void setAppPackage(String appPackage) {
+        private void setAppPackage(String appPackage) {
             this.appPackage = appPackage;
         }
 
-        public File getImage128File() {
+        private File getImage128File() {
             return image128File;
         }
 
@@ -314,27 +314,27 @@ public class ApplicationPackageService {
             this.image128File = image128File;
         }
 
-        public File getImage512File() {
+        private File getImage512File() {
             return image512File;
         }
 
-        public void setImage512File(File image512File) {
+        private void setImage512File(File image512File) {
             this.image512File = image512File;
         }
 
-        public String getImage128Name() {
+        private String getImage128Name() {
             return image128Name;
         }
 
-        public void setImage128Name(String image128Name) {
+        private void setImage128Name(String image128Name) {
             this.image128Name = image128Name;
         }
 
-        public String getImage512Name() {
+        private String getImage512Name() {
             return image512Name;
         }
 
-        public void setImage512Name(String image512Name) {
+        private void setImage512Name(String image512Name) {
             this.image512Name = image512Name;
         }
     }
