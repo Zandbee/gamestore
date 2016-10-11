@@ -10,7 +10,7 @@
   <p th:text="${app.appPackage}">id</p>
   <p th:text="${app.id}">id</p>
 
-  <a th:href="@{'/' + ${app.id} + '/download'}">Download application</a>
+  <a th:href="@{'/' + ${app.id} + '/download'}" th:text="#{application.download}">Download application</a>
 </body>
 
 </html>
