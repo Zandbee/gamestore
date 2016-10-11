@@ -17,6 +17,7 @@ import org.strokova.gamestore.util.PathsManager;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 
 /**
@@ -56,10 +57,10 @@ public class ApplicationPageController {
             throw new ApplicationFileNotFoundException("Application file was not found at path: " + applicationFile);
         }
 
-        response.setContentType(MIME_ZIP);
-        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + applicationFile.getName());
-        response.setContentLength((int) applicationFile.length());
         try {
+            response.setContentType(MIME_ZIP);
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(applicationFile.getName(), "UTF-8"));
+            response.setContentLength((int) applicationFile.length());
             FileCopyUtils.copy(new BufferedInputStream(new FileInputStream(applicationFile)),
                     response.getOutputStream());
         } catch (IOException e) {
