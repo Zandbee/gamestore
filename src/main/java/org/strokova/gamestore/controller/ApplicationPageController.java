@@ -9,7 +9,6 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.strokova.gamestore.exception.ApplicationFileNotFoundException;
-import org.strokova.gamestore.exception.ApplicationNotFoundException;
 import org.strokova.gamestore.exception.FileTransferException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
