@@ -59,7 +59,7 @@ public class ApplicationPageController {
 
         try {
             response.setContentType(MIME_ZIP);
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(applicationFile.getName(), "UTF-8"));
+            response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + URLEncoder.encode(applicationFile.getName(), "UTF-8"));
             response.setContentLength((int) applicationFile.length());
             FileCopyUtils.copy(new BufferedInputStream(new FileInputStream(applicationFile)),
                     response.getOutputStream());
