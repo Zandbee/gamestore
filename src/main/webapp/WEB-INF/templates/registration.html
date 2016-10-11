@@ -10,10 +10,10 @@
 
     <fieldset>
         <label th:for="${username}" th:text="#{registration.username}">Username</label>
-        <input type="text" th:field="*{username}"/> <br>
+        <input type="text" th:field="*{username}" required="true"/> <br>
 
         <label th:for="${password}" th:text="#{registration.password}">Password</label>
-        <input type="password" th:field="*{password}"/> <br>
+        <input type="password" th:field="*{password}" required="true"/> <br>
 
         <label th:for="${role}" th:text="#{registration.selectRole}">Account type</label>
         <select th:field="*{role}">

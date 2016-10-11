@@ -1,5 +1,7 @@
 package org.strokova.gamestore.model;
 
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -20,10 +22,12 @@ public class User {
     private Integer id;
 
     @NotNull
+    @NotBlank(message = "{username.empty}")
     @Size(max = 45, message = "{username.invalidSize}")
     private String username;
 
     @NotNull
+    @NotBlank(message = "{password.empty}")
     @Size(max = 60, message = "{password.invalidSize}")
     private String password;
 

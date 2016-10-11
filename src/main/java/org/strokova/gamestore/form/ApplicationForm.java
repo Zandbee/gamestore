@@ -1,5 +1,6 @@
 package org.strokova.gamestore.form;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.model.Category;
 
@@ -12,6 +13,8 @@ import javax.validation.constraints.Size;
 
 // this class is used to validate user input on submitting 'upload' page
 public class ApplicationForm {
+    @NotNull
+    @NotBlank(message = "{userGivenName.empty}")
     @Size(max = 40, message = "{userGivenName.invalidSize}")
     private String userGivenName;
 

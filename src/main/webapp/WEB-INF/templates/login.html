@@ -8,10 +8,10 @@
         <div th:if="${param.error}" th:text="#{login.invalid}"></div>
 
         <label for="username" th:text="#{registration.username}">Username</label>
-        <input id="username" type="text" name="username" /><br>
+        <input id="username" type="text" name="username" required="true"/><br>
 
-        <label for="username" th:text="#{registration.password}">Password</label>
-        <input type="password" name="password"/><br>
+        <label for="password" th:text="#{registration.password}">Password</label>
+        <input id="password" type="password" name="password" required="true"/><br>
 
 
         <input id="rememberMe" name="remember-me" type="checkbox"/>

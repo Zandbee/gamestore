@@ -14,7 +14,7 @@
         <input type="text" th:field="*{userGivenName}" required="true"/> <br>
 
         <label th:for="${description}" th:text="#{upload.description}">Description</label>
-        <input type="text" th:field="*{description}" required="true"/> <br>
+        <input type="text" th:field="*{description}" /> <br>
 
         <label th:for="${category}" th:text="#{upload.selectCategory}">Select category</label>
         <select th:field="*{category}" required>
