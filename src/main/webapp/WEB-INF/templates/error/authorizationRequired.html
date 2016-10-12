@@ -5,8 +5,10 @@
 </head>
 
 <body>
-<p th:text="${error.authorizationRequired}">Cannot send file</p>
-<a th:href="@{/login}" th:text="#{error.login}">Login</a>
+<div class="text-center">
+    <h2 th:text="#{error.authorizationRequired}">Cannot send file</h2>
+    <a th:href="@{/login}" th:text="#{error.login}">Login</a>
+</div>
 </body>
 
 </html>

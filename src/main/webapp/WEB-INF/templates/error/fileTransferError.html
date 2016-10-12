@@ -5,8 +5,10 @@
 </head>
 
 <body>
-<p th:text="${error.fileTransferError}">Cannot send file</p>
-<a th:href="@{/}" th:text="#{error.returnToMainPage}">Return to main</a>
+<div class="text-center">
+    <h2 th:text="#{error.fileTransferError}">Cannot send file</h2>
+    <a th:href="@{/}" th:text="#{error.returnToMainPage}">Return to main</a>
+</div>
 </body>
 
 </html>
