@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
-<form th:action="@{/upload}" th:object="${applicationForm}" method="post" enctype="multipart/form-data">
+<form th:action="@{/upload}" th:object="${applicationForm}" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
     <div class="errors" th:if="${#fields.hasErrors('*')}">
         <ul>
             <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>

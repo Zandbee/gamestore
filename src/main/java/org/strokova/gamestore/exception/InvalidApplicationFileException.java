@@ -7,4 +7,8 @@ public class InvalidApplicationFileException extends RuntimeException {
     public InvalidApplicationFileException(String message) {
         super(message);
     }
+
+    public InvalidApplicationFileException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

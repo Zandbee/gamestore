@@ -193,6 +193,8 @@ public class ApplicationPackageService {
             }
         } catch (IOException e) {
             throw new InternalErrorException("Error parsing application zip");
+        } catch (IllegalArgumentException e) {
+            throw new InvalidApplicationFileException("Something wrong with zip file", e);
         }
 
         return zipDescriptor;
