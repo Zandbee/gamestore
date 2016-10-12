@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
+
 <body>
-<p>user not found</p>
+<p th:text="${error.userNotFound}">Application not found</p>
+<a th:href="@{/}" th:text="#{error.returnToMainPage}">Return to main</a>
 </body>
+
 </html>

@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
+
 <body>
-<p>invalid application file</p>
+<p th:text="${error.invalidApplicationFile}">Invalid application file</p>
+<a th:href="@{/}" th:text="#{error.trySomethingElse}">Try something else</a>
 </body>
+
 </html>
