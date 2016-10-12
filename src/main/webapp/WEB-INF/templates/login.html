@@ -1,28 +1,50 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<head>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
 <body>
 
-<form th:action="@{/login}" method="POST">
-    <fieldset>
-        <div th:if="${param.error}" th:text="#{login.invalid}"></div>
+<form th:action="@{/login}" method="POST" class="form-horizontal">
+    <div th:if="${param.error}" th:text="#{login.invalid}" class="form-group"></div>
 
-        <label for="username" th:text="#{registration.username}">Username</label>
-        <input id="username" type="text" name="username" required="true"/><br>
+    <div class="form-group">
+        <label for="username" th:text="#{registration.username}" class="col-sm-2 control-label">Username</label>
+        <div class="col-sm-3">
+            <input id="username" type="text" name="username" class="form-control" required="true" th:placeholder="#{registration.usernamePlaceholder}"/>
+        </div>
+    </div>
 
-        <label for="password" th:text="#{registration.password}">Password</label>
-        <input id="password" type="password" name="password" required="true"/><br>
+    <div class="form-group">
+        <label for="password" th:text="#{registration.password}" class="col-sm-2 control-label">Password</label>
+        <div class="col-sm-3">
+            <input id="password" type="password" name="password" class="form-control" required="true" th:placeholder="#{registration.passwordPlaceholder}"/>
+        </div>
+    </div>
 
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-3">
+            <div class="checkbox">
+                <label>
+                    <input th:text="#{login.rememberMe}" name="remember-me" type="checkbox">
+                </label>
+            </div>
+        </div>
+    </div>
 
-        <input id="rememberMe" name="remember-me" type="checkbox"/>
-        <label for="rememberMe" class="inline" th:text="#{login.rememberMe}">Remember me</label><br>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-3">
+            <input type="submit" th:value="#{login.login}" class="btn btn-primary"/>
+        </div>
+    </div>
 
-        <br>
-        <input name="submit" type="submit" th:value="#{login.login}"/>
-
-        <br><br>
-        <a th:href="@{/registration}" th:text="#{login.registration}">Registration</a>
-    </fieldset>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-3">
+            <a th:href="@{/registration}" th:text="#{login.registration}">Registration</a>
+        </div>
+    </div>
 </form>
 
 </body>

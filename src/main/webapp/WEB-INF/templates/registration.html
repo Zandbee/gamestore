@@ -1,31 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
 <body>
-<form th:action="@{/registration}" th:object="${user}" method="post">
-    <div class="errors" th:if="${#fields.hasErrors('*')}">
+<form th:action="@{/registration}" th:object="${user}" method="post" class="form-horizontal">
+    <div class="errors form-group" th:if="${#fields.hasErrors('*')}">
         <ul>
             <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
         </ul>
     </div>
 
-    <fieldset>
-        <label th:for="${username}" th:text="#{registration.username}">Username</label>
-        <input type="text" th:field="*{username}" required="true"/> <br>
+    <div class="form-group">
+        <label th:for="${username}" th:text="#{registration.username}" class="col-sm-2 control-label">Username</label>
+        <div class="col-sm-3">
+            <input type="text" th:field="*{username}" class="form-control" required="true" th:placeholder="#{registration.usernamePlaceholder}"/>
+        </div>
+    </div>
 
-        <label th:for="${password}" th:text="#{registration.password}">Password</label>
-        <input type="password" th:field="*{password}" required="true"/> <br>
+    <div class="form-group">
+        <label th:for="${password}" th:text="#{registration.password}" class="col-sm-2 control-label">Password</label>
+        <div class="col-sm-3">
+            <input type="password" th:field="*{password}" class="form-control" required="true" th:placeholder="#{registration.passwordPlaceholder}"/>
+        </div>
+    </div>
 
-        <label th:for="${role}" th:text="#{registration.selectRole}">Account type</label>
-        <select th:field="*{role}">
-            <option th:each="role : ${allRoles}" th:value="${role}" th:text="#{${'registration.role.' + role}}">Role
-            </option>
-        </select>
-        <br><br>
-        <input type="submit" th:value="#{registration.submit}"/>
+    <div class="form-group">
+        <label th:for="${role}" th:text="#{registration.selectRole}" class="col-sm-2 control-label">Account type</label>
+        <div class="col-sm-3">
+            <select th:field="*{role}" class="form-control">
+                <option th:each="role : ${allRoles}" th:value="${role}" th:text="#{${'registration.role.' + role}}">Role
+                </option>
+            </select>
+        </div>
+    </div>
 
-        <br><br>
-        <a th:href="@{/login}" th:text="#{registration.alreadyRegistered}">Already have account</a>
-    </fieldset>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-3">
+            <input type="submit" th:value="#{registration.submit}" class="btn btn-primary"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-3">
+            <a th:href="@{/login}" th:text="#{registration.alreadyRegistered}">Already have account</a>
+        </div>
+    </div>
+
 </form>
+
 </body>
+
 </html>
