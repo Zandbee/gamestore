@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
 <body>
-  <p th:text="${app.name}">id</p>
-  <p th:text="${app.description}">id</p>
-  <p th:text="${app.appPackage}">id</p>
-  <p th:text="${app.id}">id</p>
+<div class="container-fluid">
+    <div th:replace="fragment/header :: header"></div>
 
-  <a th:href="@{'/' + ${app.id} + '/download'}" th:text="#{application.download}">Download application</a>
+    <div class="row">
+        <p th:text="${app.name}">id</p>
+        <p th:text="${app.description}">id</p>
+        <p th:text="${app.appPackage}">id</p>
+        <p th:text="${app.id}">id</p>
+
+        <a th:href="@{'/' + ${app.id} + '/download'}" th:text="#{application.download}">Download application</a>
+    </div>
+</div>
 </body>
 
 </html>

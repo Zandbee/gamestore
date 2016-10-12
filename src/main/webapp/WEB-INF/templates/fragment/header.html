@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body>
+<div th:fragment="header">
+    <div class="row">
+        <div class="col-md-1 col-md-offset-11">
+            <form th:action="@{/logout}" method="POST">
+                <input name="submit" type="submit" th:value="#{logout}"/>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

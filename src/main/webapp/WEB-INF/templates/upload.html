@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<head>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
 <body>
-<form th:action="@{/upload}" th:object="${applicationForm}" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
-    <div class="errors" th:if="${#fields.hasErrors('*')}">
-        <ul>
-            <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
-        </ul>
+<div class="container-fluid">
+    <div th:replace="fragment/header :: header"></div>
+
+    <div class="row">
+        <form th:action="@{/upload}" th:object="${applicationForm}" method="post" enctype="multipart/form-data"
+              accept-charset="UTF-8">
+            <div class="errors" th:if="${#fields.hasErrors('*')}">
+                <ul>
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+                </ul>
+            </div>
+
+
+            <label th:for="${userGivenName}" th:text="#{upload.userGivenName}">App name</label>
+            <input type="text" th:field="*{userGivenName}" required="true"/> <br>
+
+            <label th:for="${description}" th:text="#{upload.description}">Description</label>
+            <input type="text" th:field="*{description}"/> <br>
+
+            <label th:for="${category}" th:text="#{upload.selectCategory}">Select category</label>
+            <select th:field="*{category}" required>
+                <option th:text="#{upload.emptyCategory}" value="" disabled selected>Select</option>
+                <option th:each="cat : ${allCategories}" th:value="${cat}" th:text="#{${'category.' + cat}}">
+                    Category
+                </option>
+            </select><br>
+
+            <label th:for="${file}" th:text="#{upload.zipFile}">Add zip file</label>
+            <input type="file" th:field="*{file}" accept=".zip" required="true"/><br>
+
+            <br>
+            <input type="submit" th:value="#{upload.submit}"/>
+
+        </form>
     </div>
-
-    <fieldset>
-        <label th:for="${userGivenName}" th:text="#{upload.userGivenName}">App name</label>
-        <input type="text" th:field="*{userGivenName}" required="true"/> <br>
-
-        <label th:for="${description}" th:text="#{upload.description}">Description</label>
-        <input type="text" th:field="*{description}" /> <br>
-
-        <label th:for="${category}" th:text="#{upload.selectCategory}">Select category</label>
-        <select th:field="*{category}" required>
-            <option th:text="#{upload.emptyCategory}" value="" disabled selected>Select</option>
-            <option th:each="cat : ${allCategories}" th:value="${cat}" th:text="#{${'category.' + cat}}">Category
-            </option>
-        </select><br>
-
-        <label th:for="${file}" th:text="#{upload.zipFile}">Add zip file</label>
-        <input type="file" th:field="*{file}" accept=".zip" required="true"/><br>
-
-        <br>
-        <input type="submit" th:value="#{upload.submit}"/>
-    </fieldset>
-</form>
+</div>
 </body>
 
 </html>

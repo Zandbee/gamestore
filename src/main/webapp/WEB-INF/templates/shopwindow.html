@@ -7,11 +7,10 @@
 
 <body>
 
-<form th:action="@{/logout}" method="POST">
-        <input name="submit" type="submit" th:value="#{logout}"/>
-</form>
-
 <div class="container-fluid">
+
+    <div th:replace="fragment/header :: header"></div>
+
     <div class="row" style="background-color:#F8E6E0;">
         <h3 th:text="#{shopwindow.mostPopular}">Popular</h3>
         <div th:each="app : ${popularApplications}" class="col-sm-6 col-md-2">
@@ -28,7 +27,8 @@
         </div>
     </div>
 
-    <div class="row" style="background-color:#E0F2F7;" sec:authorize-url="/upload" sec:authorize="hasRole('DEVELOPER')"> <!-- need to apply both to over-secure?-->
+    <div class="row" style="background-color:#E0F2F7;" sec:authorize-url="/upload" sec:authorize="hasRole('DEVELOPER')">
+        <!-- need to apply both authorize-url and authorize to over-secure?-->
         <a class="btn btn-primary" th:href="@{/upload}" th:text="#{shopwindow.upload}"
            style="float: right; margin-right: 5%;">Upload
         </a>
@@ -62,8 +62,9 @@
 
             <div class="row">
                 <div th:unless="${pageCount == 0}">
-                    <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}" >
-                        <li><a th:href="@{/(page=__${pageNum}__,category=__${#httpServletRequest.getParameter('category')}__)}"
+                    <ul class="pagination" th:each="pageNum : ${#numbers.sequence(1, __${pageCount}__)}">
+                        <li>
+                            <a th:href="@{/(page=__${pageNum}__,category=__${#httpServletRequest.getParameter('category')}__)}"
                                th:text="${pageNum}"></a></li>
                     </ul>
                 </div>
