@@ -27,7 +27,7 @@ import java.util.List;
 public class UploadApplicationController {
 
     private static final String PAGE_UPLOAD = "upload";
-    private static final String PAGE_APPLICATION = "applicationPage";
+    private static final String PATH_VAR_APPLICATION_ID = "applicationId";
 
     @Autowired
     private ApplicationPackageService applicationPackageService;
@@ -57,7 +57,8 @@ public class UploadApplicationController {
                 principal.getName());
 
         model.asMap().clear();
-        return "redirect:" + application.getId().toString(); // TODO: redirect
+        model.addAttribute(PATH_VAR_APPLICATION_ID, application.getId());
+        return "redirect:/{" + PATH_VAR_APPLICATION_ID + "}";
     }
 
     @ModelAttribute("allCategories")
