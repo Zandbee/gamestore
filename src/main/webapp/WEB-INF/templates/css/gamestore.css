@@ -6,7 +6,15 @@
 {
     background-color: #b1cdcd;
 }
+.bg-header
+{
+    background-color: #e6ffff;
+}
 .hr-green
 {
     border-color: #b1cdcd;
+}
+.text-bold
+{
+    font-weight: bold;
 }

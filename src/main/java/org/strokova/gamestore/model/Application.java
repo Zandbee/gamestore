@@ -158,6 +158,11 @@ public class Application {
         return this;
     }
 
+    public Application setTimeUploaded(Timestamp timeUploaded) {
+        this.timeUploaded = timeUploaded;
+        return this;
+    }
+
     public User getUser() {
         return user;
     }
