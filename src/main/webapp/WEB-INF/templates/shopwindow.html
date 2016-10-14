@@ -12,33 +12,36 @@
 
     <div th:replace="fragment/header :: header"></div>
 
-    <div class="row">
+    <div>
         <h3 th:text="#{shopwindow.mostPopular}">Popular</h3>
 
-        <div th:each="app : ${popularApplications}" class="col-sm-4 col-md-1">
-            <div class="thumbnail"
-                 th:with="image512=${app.image512Path},image128=${app.image128Path}">
-                <img th:src="(${image512} != null) ? @{/files/__${image512}__}
+        <div class="row">
+            <div th:each="app : ${popularApplications}" class="col-sm-4 col-md-1">
+                <div class="thumbnail"
+                     th:with="image512=${app.image512Path},image128=${app.image128Path}">
+                    <img th:src="(${image512} != null) ? @{/files/__${image512}__}
                         : ((${image128} != null) ? @{/files/__${image128}__}
                         : @{/assets/images/1.jpg})" alt="Logo" width="100%">
-                <div class="caption">
-                    <h3><a th:text="${app.name}" th:href="@{'/' + ${app.id}}">name</a></h3>
-                    <p th:text="${app.description}">description</p>
+                    <div class="caption">
+                        <h3><a th:text="${app.name}" th:href="@{'/' + ${app.id}}">name</a></h3>
+                        <p th:text="${app.description}">description</p>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <hr class="hr-green">
     </div>
 
-    <hr class="hr-green">
-
-    <div class="row" sec:authorize-url="/upload" sec:authorize="hasRole('DEVELOPER')">
+    <div sec:authorize-url="/upload" sec:authorize="hasRole('DEVELOPER')">
         <!-- need to apply both authorize-url and authorize to over-secure?-->
-        <a class="btn btn-primary" th:href="@{/upload}" th:text="#{shopwindow.upload}"
-           style="float: right; margin-right: 5%;">Upload
-        </a>
+        <div class="row">
+            <a class="btn btn-primary" th:href="@{/upload}" th:text="#{shopwindow.upload}"
+               style="float: right; margin-right: 5%;">Upload
+            </a>
+        </div>
+        <hr class="hr-green">
     </div>
-
-    <hr class="hr-green">
 
     <div class="row">
         <div class="col-md-2 bg-categories">

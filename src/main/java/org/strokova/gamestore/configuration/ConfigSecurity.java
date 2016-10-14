@@ -46,7 +46,7 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
                 .and().logout()
                 .and().authorizeRequests()
                     .antMatchers("/resources/**").permitAll() // TODO: check if this is really needed (for unauthorized users on login and registration pages) - when everything is ready
-                    .antMatchers("/registration").permitAll()
+                    .antMatchers("/registration", "/login").permitAll()
                     .antMatchers("/upload", "/upload/**").hasRole(Role.DEVELOPER.name())
                     .anyRequest().authenticated();
                 //.and().requiresChannel()
