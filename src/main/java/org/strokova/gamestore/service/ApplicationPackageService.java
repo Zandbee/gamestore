@@ -64,7 +64,7 @@ public class ApplicationPackageService {
 
                 return application;
             } else {
-                throw new IllegalArgumentException("Zip descriptor is not valid!");
+                throw new InvalidApplicationFileException("Zip descriptor is not valid!");
             }
         } finally {
             FileUtils.deleteFile(tempDirectory);

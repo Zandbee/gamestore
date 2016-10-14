@@ -5,10 +5,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.strokova.gamestore.form.ApplicationForm;
+import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.service.ApplicationPackageService;
 
@@ -25,6 +27,7 @@ import java.util.List;
 public class UploadApplicationController {
 
     private static final String PAGE_UPLOAD = "upload";
+    private static final String PAGE_APPLICATION = "applicationPage";
 
     @Autowired
     private ApplicationPackageService applicationPackageService;
@@ -40,18 +43,21 @@ public class UploadApplicationController {
     public String uploadApplication(
             @Valid ApplicationForm applicationForm,
             Errors errors,
-            Principal principal) {
+            Principal principal,
+            Model model) {
         if (errors.hasErrors()) {
             return PAGE_UPLOAD;
         }
 
-        applicationPackageService.saveUploadedApplication(
+        Application application = applicationPackageService.saveUploadedApplication(
                 applicationForm.getUserGivenName(),
                 applicationForm.getDescription(),
                 applicationForm.getCategory(),
                 applicationForm.getFile(),
                 principal.getName());
-        return "upload"; // TODO: redirect
+
+        model.asMap().clear();
+        return "redirect:" + application.getId().toString(); // TODO: redirect
     }
 
     @ModelAttribute("allCategories")
