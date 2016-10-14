@@ -12,8 +12,10 @@
     <div th:replace="fragment/header :: header"></div>
 
     <div class="row" style="background-color:#F8E6E0;">
-        <h3 th:text="#{shopwindow.mostPopular}">Popular</h3>
-        <div th:each="app : ${popularApplications}" class="col-sm-6 col-md-2">
+        <div class="page-header">
+            <h3 th:text="#{shopwindow.mostPopular}">Popular</h3>
+        </div>
+        <div th:each="app : ${popularApplications}" class="col-sm-4 col-md-1">
             <div class="thumbnail"
                  th:with="image512=${app.image512Path},image128=${app.image128Path}">
                 <img th:src="(${image512} != null) ? @{/files/__${image512}__}

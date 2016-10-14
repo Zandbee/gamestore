@@ -7,7 +7,7 @@
 
 <body>
 <form th:action="@{/registration}" th:object="${user}" method="post" class="form-horizontal">
-    <div class="errors form-group" th:if="${#fields.hasErrors('*')}">
+    <div class="alert alert-danger form-group" th:if="${#fields.hasErrors('*')}">
         <ul>
             <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
         </ul>

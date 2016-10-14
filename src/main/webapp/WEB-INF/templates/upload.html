@@ -12,7 +12,7 @@
     <div class="row">
         <form th:action="@{/upload}" th:object="${applicationForm}" method="post" enctype="multipart/form-data"
               accept-charset="UTF-8" class="form-horizontal">
-            <div class="errors form-group" th:if="${#fields.hasErrors('*')}">
+            <div class="alert alert-danger form-group" th:if="${#fields.hasErrors('*')}">
                 <ul>
                     <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
                 </ul>
