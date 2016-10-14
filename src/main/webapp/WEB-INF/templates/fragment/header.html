@@ -3,10 +3,11 @@
 
 <head>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/templates/css/header.css}">
 </head>
 
 <body>
-<div th:fragment="header">
+<div th:fragment="header" class="bg-header">
     <div class="row">
         <div class="col-md-1 col-md-offset-11">
             <form th:action="@{/logout}" method="POST">

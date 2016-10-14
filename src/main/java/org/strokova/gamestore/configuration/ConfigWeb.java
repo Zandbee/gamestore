@@ -99,6 +99,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/");
         registry.addResourceHandler("/files/**").addResourceLocations("file:///" + PathsManager.UPLOADS_DIR + "/");
+        registry.addResourceHandler("/templates/**").addResourceLocations("/WEB-INF/templates/");
     }
 
     @Override
