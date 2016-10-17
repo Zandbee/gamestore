@@ -24,5 +24,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
 
     Page<Application> findByCategory(Pageable request, Category category);
 
+    Application findByAppPackageAndName(String appPackage, String name);
+
     int countByCategory(Category category);
 }

@@ -53,8 +53,12 @@ public class ApplicationPackageService {
                 Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
                 Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
 
-                Application application =
-                        newApplication(userGivenName, description, appCategory, packageName, appName, permanentZipPath);
+                Application application = applicationService.findByPackageAndName(packageName, appName);
+                if (application == null) {
+                    application = new Application();
+                }
+                application =
+                        makeApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
 
                 // copy app images from temp to permanent dir, if they exist
                 application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
@@ -71,8 +75,8 @@ public class ApplicationPackageService {
         }
     }
 
-    private static Application newApplication(String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
-        return new Application()
+    private static Application makeApplication(Application application, String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
+        return application
                 .setAppPackage(packageName)
                 .setName(appName)
                 .setUserGivenName(userGivenName)

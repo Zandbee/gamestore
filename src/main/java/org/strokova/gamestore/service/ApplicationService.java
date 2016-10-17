@@ -71,6 +71,11 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
+    public Application findByPackageAndName(String appPackage, String name) {
+        return applicationRepository.findByAppPackageAndName(appPackage, name);
+    }
+
+    @Transactional(readOnly = true)
     public Page<Application> findApplicationsPage(int pageNum, String category) {
         if (pageNum != 0) {
             --pageNum;
