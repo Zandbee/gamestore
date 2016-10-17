@@ -24,26 +24,24 @@ public class FileUtils {
 
         Path permDir = Paths.get(PathsManager.UPLOADS_DIR +
                 File.separator + packageName + File.separator + appName);
-        if (Files.notExists(permDir)) {
-            try {
-                Files.createDirectories(permDir);
-            } catch (IOException e) {
-                throw new InternalErrorException("Cannot create directory: " + permDir, e);
-            }
-        }
+        createDirectoryIfNotExist(permDir);
         return permDir;
     }
 
     public static Path prepareTempDirectory(String dirName) {
         Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + dirName);
-        if (Files.notExists(tempDir)) {
+        createDirectoryIfNotExist(tempDir);
+        return tempDir;
+    }
+
+    public static void createDirectoryIfNotExist(Path path) {
+        if (Files.notExists(path)) {
             try {
-                Files.createDirectories(tempDir);
+                Files.createDirectories(path);
             } catch (IOException e) {
-                throw new InternalErrorException("Cannot create directory: " + tempDir, e);
+                throw new InternalErrorException("Cannot create directory: " + path, e);
             }
         }
-        return tempDir;
     }
 
     public static void deleteFile(Path dir) {
@@ -78,7 +76,11 @@ public class FileUtils {
         return fileName.endsWith(ZIP_FILE_EXTENSION);
     }
 
-    public static boolean isImage(Path imagePath) throws IOException {
-        return Files.probeContentType(imagePath).startsWith("image"); // TODO: "image/"?;
+    public static boolean isImage(Path imagePath) {
+        try {
+            return Files.probeContentType(imagePath).startsWith("image/");
+        } catch (IOException e) {
+            throw new InternalErrorException("Cannot check path: " + imagePath, e);
+        }
     }
 }

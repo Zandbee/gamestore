@@ -12,7 +12,6 @@ import org.strokova.gamestore.util.FileUtils;
 import org.strokova.gamestore.util.PathsManager;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ public class ApplicationPackageService {
 
     private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
+    private static final int MAX_ZIP_ENTRIES_NUMBER = 3;
 
     @Autowired
     private UserService userService;
@@ -46,30 +46,26 @@ public class ApplicationPackageService {
         ZipDescriptor zipDescriptor = handleZip(zipFileTmpPath, tempDirectory);
 
         try {
-            if (isValidZipDescriptor(zipDescriptor)) { // TODO
-                String packageName = zipDescriptor.getAppPackage();
-                String appName = zipDescriptor.getName();
+            String packageName = zipDescriptor.getAppPackage();
+            String appName = zipDescriptor.getName();
 
-                Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
-                Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
+            Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
+            Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
 
-                Application application = applicationService.findByPackageAndName(packageName, appName);
-                if (application == null) {
-                    application = new Application();
-                }
-                application =
-                        makeApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
-
-                // copy app images from temp to permanent dir, if they exist
-                application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
-                application.setImage512Path(copyTo(zipDescriptor.getImage512File(), permanentApplicationDirectory));
-
-                applicationService.saveApplicationWithUser(application, user.getId());
-
-                return application;
-            } else {
-                throw new InvalidApplicationFileException("Zip descriptor is not valid!");
+            Application application = applicationService.findByPackageAndName(packageName, appName);
+            if (application == null) {
+                application = new Application();
             }
+            application =
+                    makeApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
+
+            // copy app images from temp to permanent dir, if they exist
+            application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
+            application.setImage512Path(copyTo(zipDescriptor.getImage512File(), permanentApplicationDirectory));
+
+            applicationService.saveApplicationWithUser(application, user.getId());
+
+            return application;
         } finally {
             FileUtils.deleteFile(tempDirectory);
         }
@@ -127,7 +123,7 @@ public class ApplicationPackageService {
         }
     }
 
-    private static File saveInputStreamAsFileToDirectory(InputStream is, Path dir, String fileName) {
+    private static File saveInputStreamAsImageToDirectory(InputStream is, Path dir, String fileName) {
         if (isInsideInnerFolderInZip(fileName)) {
             int pos = fileName.lastIndexOf(ZIP_INNER_FILE_SEPARATOR);
             dir = Paths.get(dir.toString() +
@@ -135,17 +131,16 @@ public class ApplicationPackageService {
             fileName = fileName.substring(pos + 1);
         }
 
-        if (Files.notExists(dir)) {
-            try {
-                Files.createDirectories(dir);
-            } catch (IOException e) {
-                throw new InternalErrorException("Cannot create directory: " + dir, e);
-            }
-        }
+        FileUtils.createDirectoryIfNotExist(dir);
 
         File file = new File(dir + File.separator + fileName);
-        byte[] buf = new byte[2048];
 
+        if (!FileUtils.isImage(file.toPath())) {
+            throw new InvalidApplicationFileException("There are odd files in an application - zip entry is not an image");
+        }
+
+
+        byte[] buf = new byte[2048];
         try (FileOutputStream fos = new FileOutputStream(file)) {
             int length;
             while ((length = is.read(buf)) > 0) {
@@ -168,11 +163,15 @@ public class ApplicationPackageService {
         ZipDescriptor zipDescriptor = new ZipDescriptor();
         String txtImage128, txtImage512;
         Map<String, File> entryFiles = new HashMap<>();
+        int zipEntriesCounter = 0;
 
         try (ZipInputStream zis =
                      new ZipInputStream(new BufferedInputStream
                              (new FileInputStream(zipFilePath.toString())))) {
             while ((entry = zis.getNextEntry()) != null) {
+                if (containsOddFiles(++zipEntriesCounter)) {
+                    throw new InvalidApplicationFileException("Application zip contains more files than needed");
+                }
                 entryName = entry.getName();
                 if (FileUtils.isTxt(entryName)) {
                     processTxtAndAddToZipDescriptor(zis, zipDescriptor);
@@ -185,14 +184,15 @@ public class ApplicationPackageService {
                     txtImage512 = zipDescriptor.getImage512Name();
 
                     if (txtImage128 != null || txtImage512 != null) {
-                        // check entryFiles
+                        // check already extracted zip entries
                         processAlreadyReadEntriesAndAddToZipDescriptor(entryFiles, zipDescriptor, txtImage128, txtImage512);
                         // check remaining zip entries
-                        processRemainingEntriesAndAddToZipDescriptor(zis, zipDescriptor, txtImage128, txtImage512, tempDir);
+                        processRemainingEntriesAndAddToZipDescriptor(zis, zipEntriesCounter, zipDescriptor, txtImage128, txtImage512, tempDir);
                     }
 
                 } else {
-                    entryFiles.put(entryName, saveInputStreamAsFileToDirectory(zis, tempDir, entryName));
+                    // assume it is an image while saving
+                    entryFiles.put(entryName, saveInputStreamAsImageToDirectory(zis, tempDir, entryName));
                 }
             }
         } catch (IOException e) {
@@ -232,44 +232,41 @@ public class ApplicationPackageService {
     }
 
     private static ZipDescriptor processAlreadyReadEntriesAndAddToZipDescriptor(
-            Map<String, File> zipEntryFiles, ZipDescriptor zipDescriptor, String image128Name, String image512Name) {
+            Map<String, File> zipEntryFiles, ZipDescriptor zipDescriptor, String txtImage128Name, String txtImage512Name) {
 
         for (Map.Entry<String, File> entryFile : zipEntryFiles.entrySet()) {
-            String entryFileName = entryFile.getKey();
-            String entryFileNameWithoutExtension = entryFileName.substring(0, entryFileName.lastIndexOf("."));
-            if (image128Name != null && image128Name.equals(entryFileNameWithoutExtension)) {
-                zipDescriptor.setImage128Name(image128Name);
-                zipDescriptor.setImage128File(entryFile.getValue());
-            }
-            if (image512Name != null && image512Name.equals(entryFileNameWithoutExtension)) {
-                zipDescriptor.setImage512Name(image512Name);
-                zipDescriptor.setImage512File(entryFile.getValue());
-            }
-            // TODO check if is image
+            processFileFromZip(zipDescriptor, txtImage128Name, txtImage512Name, entryFile);
         }
 
         return zipDescriptor;
     }
 
+    private static void processFileFromZip(
+            ZipDescriptor zipDescriptor, String txtImage128Name, String txtImage512Name, Map.Entry<String, File> entryFile) {
+        String entryFileName = entryFile.getKey();
+        if (imageNameFromTxtEqualsZipEntryName(txtImage128Name, entryFileName)) {
+            zipDescriptor.setImage128Name(txtImage128Name);
+            zipDescriptor.setImage128File(entryFile.getValue());
+        } else if (imageNameFromTxtEqualsZipEntryName(txtImage512Name, entryFileName)) {
+            zipDescriptor.setImage512Name(txtImage512Name);
+            zipDescriptor.setImage512File(entryFile.getValue());
+        } else {
+            throw new InvalidApplicationFileException
+                    ("Application zip contains odd files - According to TXT, there should be no image with name: " + entryFileName);
+        }
+    }
+
     private static ZipDescriptor processRemainingEntriesAndAddToZipDescriptor(
-            ZipInputStream zis, ZipDescriptor zipDescriptor, String image128Name, String image512Name, Path dir) {
+            ZipInputStream zis, int zipEntriesCounter, ZipDescriptor zipDescriptor, String txtImage128Name, String txtImage512Name, Path dir) {
+
+        if (containsOddFiles(++zipEntriesCounter)) {
+            throw new InvalidApplicationFileException("Application zip contains more files than needed");
+        }
 
         ZipEntry entry;
-        String entryName;
-
         try {
             while ((entry = zis.getNextEntry()) != null) {
-                entryName = entry.getName();
-                String entryNameWithoutExtension = entryName.substring(0, entryName.lastIndexOf("."));
-                if (image128Name != null && image128Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage128Name(image128Name);
-                    zipDescriptor.setImage128File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
-                }
-                if (image512Name != null && image512Name.equals(entryNameWithoutExtension)) {
-                    zipDescriptor.setImage512Name(image512Name);
-                    zipDescriptor.setImage512File(saveInputStreamAsFileToDirectory(zis, dir, entryName));
-                }
-                // TODO check if is image
+                processEntryFromZip(zis, zipDescriptor, txtImage128Name, txtImage512Name, dir, entry);
             }
         } catch (IOException e) {
             throw new InternalErrorException("Error parsing application zip", e);
@@ -278,9 +275,30 @@ public class ApplicationPackageService {
         return zipDescriptor;
     }
 
-    private static boolean isValidZipDescriptor(ZipDescriptor zipDescriptor) {
-        // TODO: check descriptor here
-        return true;
+    private static void processEntryFromZip(
+            ZipInputStream zis, ZipDescriptor zipDescriptor, String txtImage128Name, String txtImage512Name, Path dir, ZipEntry entry) {
+        String entryName = entry.getName();
+        if (imageNameFromTxtEqualsZipEntryName(txtImage128Name, entryName)) {
+            zipDescriptor.setImage128Name(txtImage128Name);
+            zipDescriptor.setImage128File(saveInputStreamAsImageToDirectory(zis, dir, entryName));
+        } else if (imageNameFromTxtEqualsZipEntryName(txtImage512Name, entryName)) {
+            zipDescriptor.setImage512Name(txtImage512Name);
+            zipDescriptor.setImage512File(saveInputStreamAsImageToDirectory(zis, dir, entryName));
+        } else {
+            throw new InvalidApplicationFileException
+                    ("Application zip contains odd files - According to TXT, there should be no image with name: " + entryName);
+        }
+    }
+
+    private static boolean imageNameFromTxtEqualsZipEntryName(String nameFromTxt, String nameFromZip) {
+        String nameFromZipWithoutExtension = nameFromZip.substring(0, nameFromZip.lastIndexOf("."));
+        return nameFromTxt != null &&
+                (nameFromTxt.equals(nameFromZipWithoutExtension) || nameFromTxt.equals(nameFromZip));
+    }
+
+    // checks if zip file contains more entries than needed
+    private static boolean containsOddFiles(int zipEntriesCounter) {
+        return zipEntriesCounter > MAX_ZIP_ENTRIES_NUMBER;
     }
 
     private class ZipDescriptor {
