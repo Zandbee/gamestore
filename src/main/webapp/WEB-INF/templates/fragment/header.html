@@ -9,7 +9,10 @@
 <body>
 <div th:fragment="header" class="bg-header">
     <div class="row">
-        <div class="col-md-1 col-md-offset-11">
+        <div class="col-md-1 text-right">
+            <a th:href="@{/}" th:text="#{toMainPage}">Return to main</a>
+        </div>
+        <div class="col-md-1 col-md-offset-10">
             <form th:action="@{/logout}" method="POST">
                 <input name="submit" type="submit" class="btn btn-info" th:value="#{logout}"/>
             </form>
