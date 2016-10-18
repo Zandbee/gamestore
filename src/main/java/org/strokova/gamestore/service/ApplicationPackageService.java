@@ -262,13 +262,12 @@ public class ApplicationPackageService {
     private static ZipDescriptor processRemainingEntriesAndAddToZipDescriptor(
             ZipInputStream zis, int zipEntriesCounter, ZipDescriptor zipDescriptor, String txtImage128Name, String txtImage512Name, Path dir) {
 
-        if (containsOddFiles(++zipEntriesCounter)) {
-            throw new InvalidApplicationFileException("Application zip contains more files than needed");
-        }
-
         ZipEntry entry;
         try {
             while ((entry = zis.getNextEntry()) != null) {
+                if (containsOddFiles(++zipEntriesCounter)) {
+                    throw new InvalidApplicationFileException("Application zip contains more files than needed");
+                }
                 processEntryFromZip(zis, zipDescriptor, txtImage128Name, txtImage512Name, dir, entry);
             }
         } catch (IOException e) {
