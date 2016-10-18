@@ -24,8 +24,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class ShopwindowController {
     private static final String PAGE_SHOPWINDOW = "shopwindow";
 
+    private final ApplicationService applicationService;
+
     @Autowired
-    private ApplicationService applicationService;
+    public ShopwindowController(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
 
     @RequestMapping(method = GET)
     public String showShopwindow() {

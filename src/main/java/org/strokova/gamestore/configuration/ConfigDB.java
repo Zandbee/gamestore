@@ -31,8 +31,12 @@ public class ConfigDB {
     private static final String DATASOURCE_NAME_JDBC_GAMESTORE = "jdbc/gamestore";
     private static final String PROPERTIES_KEY_HIBERNATE_DIALECT = "hibernate.dialect";
 
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public ConfigDB(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     public DataSource dataSource() {

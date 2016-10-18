@@ -30,10 +30,14 @@ public class ApplicationPageController {
     private static final String PAGE_APPLICATION = "applicationPage";
     private static final String MIME_ZIP = "application/zip";
 
+    private final ApplicationRepository applicationRepository;
+    private final ApplicationService applicationService;
+
     @Autowired
-    private ApplicationRepository applicationRepository;
-    @Autowired
-    private ApplicationService applicationService;
+    public ApplicationPageController(ApplicationRepository applicationRepository, ApplicationService applicationService) {
+        this.applicationRepository = applicationRepository;
+        this.applicationService = applicationService;
+    }
 
     @RequestMapping(method = GET)
     public String viewApplication(

@@ -37,10 +37,14 @@ public class ApplicationService {
     private static final String APPLICATION_FIELD_NAME_DOWNLOAD_NUMBER = "downloadNumber";
     private static final String APPLICATION_FIELD_NAME_TIME_UPLOADED = "timeUploaded";
 
+    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
+
     @Autowired
-    private ApplicationRepository applicationRepository;
-    @Autowired
-    private UserRepository userRepository;
+    public ApplicationService(ApplicationRepository applicationRepository, UserRepository userRepository) {
+        this.applicationRepository = applicationRepository;
+        this.userRepository = userRepository;
+    }
 
     @Transactional
     public Application saveApplicationWithUser(Application application, int userId) {

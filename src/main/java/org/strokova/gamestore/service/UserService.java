@@ -14,8 +14,12 @@ import org.strokova.gamestore.repository.UserRepository;
 @Service
 public class UserService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Transactional
     public User getUserByUsername(String username) {

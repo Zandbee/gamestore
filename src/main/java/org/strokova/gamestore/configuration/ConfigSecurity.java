@@ -24,8 +24,12 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
     private static final String USERS_BY_USERNAME_QUERY = "select username, password, true from user where username=?";
     private static final String AUTHORITIES_BY_USERNAME_QUERY = "select username, concat('ROLE_', role) from user where username=?";
 
+    private final DataSource dataSource;
+
     @Autowired
-    private DataSource dataSource;
+    public ConfigSecurity(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

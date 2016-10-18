@@ -29,8 +29,12 @@ public class UploadApplicationController {
     private static final String PAGE_UPLOAD = "upload";
     private static final String PATH_VAR_APPLICATION_ID = "applicationId";
 
+    private final ApplicationPackageService applicationPackageService;
+
     @Autowired
-    private ApplicationPackageService applicationPackageService;
+    public UploadApplicationController(ApplicationPackageService applicationPackageService) {
+        this.applicationPackageService = applicationPackageService;
+    }
 
     @RequestMapping(method = GET)
     @Secured("ROLE_DEVELOPER")

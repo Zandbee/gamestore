@@ -29,10 +29,14 @@ public class ApplicationPackageService {
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int MAX_ZIP_ENTRIES_NUMBER = 3;
 
+    private final UserService userService;
+    private final ApplicationService applicationService;
+
     @Autowired
-    private UserService userService;
-    @Autowired
-    private ApplicationService applicationService;
+    public ApplicationPackageService (UserService userService, ApplicationService applicationService) {
+        this.userService = userService;
+        this.applicationService = applicationService;
+    }
 
     public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
         User user = userService.getUserByUsername(username);

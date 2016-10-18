@@ -30,10 +30,14 @@ public class RegistrationController {
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_SHOPWINDOW = "shopwindow";
 
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public RegistrationController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @RequestMapping(method = GET)
     public String showRegistrationPage(User user) {
