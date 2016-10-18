@@ -60,8 +60,7 @@ public class ApplicationPackageService {
             if (application == null) {
                 application = new Application();
             }
-            application =
-                    makeApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
+            setupApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
 
             // copy app images from temp to permanent dir, if they exist
             application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
@@ -75,8 +74,8 @@ public class ApplicationPackageService {
         }
     }
 
-    private static Application makeApplication(Application application, String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
-        return application
+    private static void setupApplication(Application application, String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
+        application
                 .setAppPackage(packageName)
                 .setName(appName)
                 .setUserGivenName(userGivenName)
