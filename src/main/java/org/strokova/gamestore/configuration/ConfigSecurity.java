@@ -21,7 +21,9 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class ConfigSecurity extends WebSecurityConfigurerAdapter {
 
+    // overriding DEF_USERS_BY_USERNAME_QUERY from JdbcDaoImpl class. Using true for enabled
     private static final String USERS_BY_USERNAME_QUERY = "select username, password, true from user where username=?";
+    // overriding DEF_AUTHORITIES_BY_USERNAME_QUERY from JdbcDaoImpl class
     private static final String AUTHORITIES_BY_USERNAME_QUERY = "select username, concat('ROLE_', role) from user where username=?";
 
     private final DataSource dataSource;

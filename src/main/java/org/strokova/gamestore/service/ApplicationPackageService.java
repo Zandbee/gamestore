@@ -9,7 +9,7 @@ import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.util.FileUtils;
-import org.strokova.gamestore.util.PathsManager;
+import org.strokova.gamestore.util.PathUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -105,7 +105,7 @@ public class ApplicationPackageService {
     }
 
     private static Path getRelativePathInUploads(Path absolutePath) {
-        return Paths.get(PathsManager.UPLOADS_DIR).relativize(absolutePath);
+        return Paths.get(PathUtils.UPLOADS_DIR).relativize(absolutePath);
     }
 
     // return saved file location
@@ -134,7 +134,7 @@ public class ApplicationPackageService {
             fileName = fileName.substring(pos + 1);
         }
 
-        FileUtils.createDirectoryIfNotExist(dir);
+        dir = FileUtils.createDirectoryIfNotExist(dir);
 
         File file = new File(dir + File.separator + fileName);
 
@@ -211,6 +211,7 @@ public class ApplicationPackageService {
             ZipInputStream txtFileInputStream, ZipDescriptor zipDescriptor) {
         String line;
         try {
+            // not closing BufferedReader here in order not to close ZipInputStream. closing ZipInputSteam in handleZip()
             BufferedReader reader = new BufferedReader(new InputStreamReader(txtFileInputStream, ENCODING_UTF_8));
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(ZipDescriptor.TXT_NAME)) {
@@ -303,7 +304,7 @@ public class ApplicationPackageService {
         return zipEntriesCounter > MAX_ZIP_ENTRIES_NUMBER;
     }
 
-    private class ZipDescriptor {
+    private static class ZipDescriptor {
         private String name;
         private String appPackage;
         private String image128Name;

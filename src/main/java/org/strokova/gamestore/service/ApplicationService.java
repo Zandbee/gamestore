@@ -6,25 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.exception.ApplicationNotFoundException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.repository.ApplicationRepository;
 import org.strokova.gamestore.repository.UserRepository;
-import org.strokova.gamestore.util.PathsManager;
-
-import java.io.*;
-import java.nio.channels.IllegalSelectorException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author vstrokova, 12.09.2016.
@@ -93,14 +80,14 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public int getPageCount(String category) {
+    public long getPageCount(String category) {
         long applicationsTotalNum;
         if (category == null || category.isEmpty()) {
             applicationsTotalNum = applicationRepository.count();
         } else {
             applicationsTotalNum = applicationRepository.countByCategory(Category.valueOf(category));
         }
-        int pageCount = (int) (applicationsTotalNum / PAGE_SIZE);
+        long pageCount = applicationsTotalNum / PAGE_SIZE;
         if (applicationsTotalNum % PAGE_SIZE != 0) {
             ++pageCount;
         }

@@ -12,9 +12,13 @@ import java.nio.file.StandardCopyOption;
 /**
  * @author vstrokova, 07.10.2016.
  */
-public class FileUtils {
+public final class FileUtils {
+
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String TXT_FILE_EXTENSION = ".txt";
+
+    private FileUtils() {
+    }
 
     public static Path preparePermanentDirectory(String packageName, String appName) {
         if (packageName == null || packageName.isEmpty()
@@ -22,26 +26,25 @@ public class FileUtils {
             throw new InternalErrorException("packageName and appName cannot be null or empty");
         }
 
-        Path permDir = Paths.get(PathsManager.UPLOADS_DIR +
+        Path permDir = Paths.get(PathUtils.UPLOADS_DIR +
                 File.separator + packageName + File.separator + appName);
-        createDirectoryIfNotExist(permDir);
-        return permDir;
+        return createDirectoryIfNotExist(permDir);
     }
 
     public static Path prepareTempDirectory(String dirName) {
-        Path tempDir = Paths.get(PathsManager.UPLOADS_TEMP_DIR + File.separator + dirName);
-        createDirectoryIfNotExist(tempDir);
-        return tempDir;
+        Path tempDir = Paths.get(PathUtils.UPLOADS_TEMP_DIR + File.separator + dirName);
+        return createDirectoryIfNotExist(tempDir);
     }
 
-    public static void createDirectoryIfNotExist(Path path) {
+    public static Path createDirectoryIfNotExist(Path path) {
         if (Files.notExists(path)) {
             try {
-                Files.createDirectories(path);
+                return Files.createDirectories(path);
             } catch (IOException e) {
                 throw new InternalErrorException("Cannot create directory: " + path, e);
             }
         }
+        return path;
     }
 
     public static void deleteFile(Path dir) {
@@ -61,11 +64,10 @@ public class FileUtils {
     public static Path copyFile(Path srcFilePath, Path destDirectory) {
         Path destFilePath = destDirectory.resolve(srcFilePath.getFileName());
         try {
-            Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
+            return Files.copy(srcFilePath, destFilePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new InternalErrorException("Cannot copy " + srcFilePath + " to " + destDirectory, e);
         }
-        return destFilePath;
     }
 
     public static boolean isTxt(String fileName) {

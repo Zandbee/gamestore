@@ -49,7 +49,7 @@ public class ShopwindowController {
     }
 
     @ModelAttribute("pageCount")
-    public int getPageCount(
+    public long getPageCount(
             @RequestParam(value = "category", defaultValue = "") String category) {
         return applicationService.getPageCount(category);
     }

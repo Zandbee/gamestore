@@ -4,7 +4,7 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 import org.strokova.gamestore.configuration.ConfigRoot;
 import org.strokova.gamestore.configuration.ConfigWeb;
 import org.strokova.gamestore.exception.InternalErrorException;
-import org.strokova.gamestore.util.PathsManager;
+import org.strokova.gamestore.util.PathUtils;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
@@ -40,7 +40,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         try {
-        Path uploadsPath = Paths.get(PathsManager.UPLOAD_MULTIPART_TEMP_DIR);
+        Path uploadsPath = Paths.get(PathUtils.UPLOAD_MULTIPART_TEMP_DIR);
         if (Files.notExists(uploadsPath)) {
             Files.createDirectories(uploadsPath);
         }

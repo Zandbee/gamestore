@@ -13,7 +13,7 @@ import org.strokova.gamestore.exception.FileTransferException;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.repository.ApplicationRepository;
 import org.strokova.gamestore.service.ApplicationService;
-import org.strokova.gamestore.util.PathsManager;
+import org.strokova.gamestore.util.PathUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -55,7 +55,7 @@ public class ApplicationPageController {
         Application application = applicationService.getApplicationById(applicationId);
 
         String filePath = application.getFilePath();
-        File applicationFile = new File(PathsManager.UPLOADS_DIR + File.separator + filePath);
+        File applicationFile = new File(PathUtils.UPLOADS_DIR + File.separator + filePath);
 
         if (Files.notExists(applicationFile.toPath())) {
             throw new ApplicationFileNotFoundException("Application file was not found at path: " + applicationFile);
