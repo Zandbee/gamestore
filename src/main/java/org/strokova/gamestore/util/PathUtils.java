@@ -2,10 +2,10 @@ package org.strokova.gamestore.util;
 
 public final class PathUtils {
 
-    private static String HOME_DIR = initializeHome();
-    public static String UPLOADS_DIR = initializeUploads();
-    public static String UPLOADS_TEMP_DIR = initializeUploadsTemp();
-    public static String UPLOAD_MULTIPART_TEMP_DIR = initializeUploadMultipartTempDir();
+    private static final String HOME_DIR = initializeHome();
+    public static final String UPLOADS_DIR = initializeUploads();
+    public static final String UPLOADS_TEMP_DIR = initializeUploadsTemp();
+    public static final String UPLOAD_MULTIPART_TEMP_DIR = initializeUploadMultipartTempDir();
 
     private PathUtils() {
     }
