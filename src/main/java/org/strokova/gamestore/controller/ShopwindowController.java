@@ -38,7 +38,7 @@ public class ShopwindowController {
 
     @ModelAttribute("allCategories")
     public List<Category> populateCategories() {
-        return Arrays.asList(Category.ALL);
+        return Arrays.asList(Category.values());
     }
 
     @ModelAttribute("pageApplications")

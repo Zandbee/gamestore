@@ -66,6 +66,6 @@ public class RegistrationController {
 
     @ModelAttribute("allRoles")
     public List<Role> populateRoles() {
-        return Arrays.asList(Role.ALL);
+        return Arrays.asList(Role.values());
     }
 }

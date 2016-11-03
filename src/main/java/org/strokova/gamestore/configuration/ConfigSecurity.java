@@ -54,8 +54,6 @@ public class ConfigSecurity extends WebSecurityConfigurerAdapter {
                     .antMatchers("/registration", "/login").permitAll()
                     .antMatchers("/upload", "/upload/**").hasRole(Role.DEVELOPER.name())
                     .anyRequest().authenticated();
-                //.and().requiresChannel()
-                    //.antMatchers("/registration", "/login").requiresSecure(); // send user's credentials over HTTPS
     }
 
     @Bean

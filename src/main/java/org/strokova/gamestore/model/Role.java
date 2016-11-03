@@ -7,7 +7,4 @@ package org.strokova.gamestore.model;
 public enum Role {
     DEVELOPER,
     USER;
-
-    public static final Role[] ALL = {DEVELOPER, USER};
-
 }

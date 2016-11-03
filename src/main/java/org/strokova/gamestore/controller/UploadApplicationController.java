@@ -67,6 +67,6 @@ public class UploadApplicationController {
 
     @ModelAttribute("allCategories")
     public List<Category> populateCategories() {
-        return Arrays.asList(Category.ALL);
+        return Arrays.asList(Category.values());
     }
 }

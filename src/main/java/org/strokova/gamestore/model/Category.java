@@ -15,17 +15,4 @@ public enum Category {
     SCHOOL,
     HOME,
     COMMUNICATIONS;
-
-    public static final Category[] ALL =
-            {GAMES,
-            MULTIMEDIA,
-            PRODUCTIVITY,
-            TOOLS,
-            HEALTH,
-            LIFESTYLE,
-            GRAPHICS,
-            SCHOOL,
-            HOME,
-            COMMUNICATIONS};
-
 }
