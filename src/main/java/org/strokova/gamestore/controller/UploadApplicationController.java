@@ -53,12 +53,7 @@ public class UploadApplicationController {
             return PAGE_UPLOAD;
         }
 
-        Application application = applicationPackageService.saveUploadedApplication(
-                applicationForm.getUserGivenName(),
-                applicationForm.getDescription(),
-                applicationForm.getCategory(),
-                applicationForm.getFile(),
-                principal.getName());
+        Application application = applicationPackageService.saveUploadedApplication(applicationForm, principal.getName());
 
         model.asMap().clear();
         model.addAttribute(PATH_VAR_APPLICATION_ID, application.getId());

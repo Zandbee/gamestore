@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.exception.InternalErrorException;
 import org.strokova.gamestore.exception.InvalidApplicationFileException;
+import org.strokova.gamestore.form.ApplicationForm;
 import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
@@ -38,8 +39,13 @@ public class ApplicationPackageService {
         this.applicationService = applicationService;
     }
 
-    public Application saveUploadedApplication(String userGivenName, String description, Category appCategory, MultipartFile file, String username) {
+    public Application saveUploadedApplication(ApplicationForm applicationForm, String username) {
         User user = userService.getUserByUsername(username);
+
+        String userGivenName = applicationForm.getUserGivenName();
+        String description = applicationForm.getDescription();
+        Category appCategory = applicationForm.getCategory();
+        MultipartFile file = applicationForm.getFile();
 
         validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file);
 
