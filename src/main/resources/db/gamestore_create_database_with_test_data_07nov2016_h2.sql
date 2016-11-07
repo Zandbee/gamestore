@@ -16,7 +16,7 @@
 
 DROP TABLE IF EXISTS application;
 CREATE TABLE application (
-  id int(11) NOT NULL,
+  id int(11) NOT NULL auto_increment,
   package varchar(300) NOT NULL,
   name varchar(40) NOT NULL,
   given_name varchar(40) NOT NULL,
@@ -52,7 +52,7 @@ INSERT INTO application VALUES (58,'org.strokova','superjet app','Super Jett','T
 --
 DROP TABLE IF EXISTS user;
 CREATE TABLE user (
-  id int(11) NOT NULL,
+  id int(11) NOT NULL auto_increment,
   username varchar(45) NOT NULL,
   password varchar(60) NOT NULL,
   role varchar(30) NOT NULL DEFAULT 'USER',
@@ -85,7 +85,7 @@ INSERT INTO user VALUES (18,'apr','$2a$10$g.tgFllBFcZY1K/R0t8rYO8ZubalSnhQr.2bxM
 
 DROP TABLE IF EXISTS user_application;
 CREATE TABLE user_application (
-  user_id int(11) NOT NULL,
+  user_id int(11) NOT NULL auto_increment,
   application_id int(11) NOT NULL,
   PRIMARY KEY (user_id,application_id),
   CONSTRAINT app_id FOREIGN KEY (application_id) REFERENCES application (id) ON DELETE CASCADE ON UPDATE NO ACTION,

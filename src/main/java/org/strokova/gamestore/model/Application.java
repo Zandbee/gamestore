@@ -53,7 +53,7 @@ public class Application {
     @Column(name = "download_num")
     private Integer downloadNumber = 0;
 
-    @Column(name = "time_uploaded")
+    @Column(name = "time_uploaded", insertable=false)
     private Timestamp timeUploaded;
 
     @ManyToOne

@@ -21,7 +21,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         if (username == null || username.isEmpty()) {
             throw new AuthorizationRequiredException("Bad username");

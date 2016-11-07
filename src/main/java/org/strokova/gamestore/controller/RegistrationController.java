@@ -3,11 +3,6 @@ package org.strokova.gamestore.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -15,7 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.strokova.gamestore.model.Role;
 import org.strokova.gamestore.model.User;
-import org.strokova.gamestore.repository.UserRepository;
+import org.strokova.gamestore.service.RegistrationService;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -30,13 +25,11 @@ public class RegistrationController {
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_SHOPWINDOW = "shopwindow";
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final RegistrationService registrationService;
 
     @Autowired
-    public RegistrationController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public RegistrationController(RegistrationService registrationService) {
+        this.registrationService = registrationService;
     }
 
     @RequestMapping(method = GET)
@@ -53,12 +46,7 @@ public class RegistrationController {
             return PAGE_REGISTRATION;
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-
-        // let Spring know the user is already authenticated - don't make user login after registration
-        Authentication auth = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        registrationService.saveAndAuthenticateUser(user);
 
         model.asMap().clear();
         return "redirect: " + PAGE_SHOPWINDOW;
