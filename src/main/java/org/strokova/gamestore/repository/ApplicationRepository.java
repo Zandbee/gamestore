@@ -14,7 +14,6 @@ import org.strokova.gamestore.model.Category;
  * @author vstrokova, 12.09.2016.
  */
 @Repository
-@Transactional(readOnly = true)
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
 
     @Modifying
