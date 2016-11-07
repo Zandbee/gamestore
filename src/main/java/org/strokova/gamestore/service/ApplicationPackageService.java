@@ -10,7 +10,6 @@ import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.util.FileUtils;
-import org.strokova.gamestore.util.PathUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -20,13 +19,14 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.strokova.gamestore.util.FileUtils.*;
+
 /**
  * author: Veronika, 10/6/2016.
  */
 @Service
 public class ApplicationPackageService {
 
-    private static final String ZIP_INNER_FILE_SEPARATOR = "/";
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int MAX_ZIP_ENTRIES_NUMBER = 3;
 
@@ -90,14 +90,6 @@ public class ApplicationPackageService {
                 .setFilePath(getRelativePathInUploads(permanentZipPath).toString());
     }
 
-    private static String copyTo(File f, Path dir) {
-        if (f == null) {
-            return null;
-        }
-        Path p = FileUtils.copyFile(f.toPath(), dir);
-        return getRelativePathInUploads(p).toString();
-    }
-
     private static void validateSaveUploadedApplicationRequiredParameters(String userGivenName, Category appCategory, MultipartFile file) {
         if (userGivenName == null || userGivenName.isEmpty()) {
             throw new IllegalArgumentException("userGivenName is null or empty");
@@ -108,10 +100,6 @@ public class ApplicationPackageService {
         if (file == null) {
             throw new IllegalArgumentException("No application file");
         }
-    }
-
-    private static Path getRelativePathInUploads(Path absolutePath) {
-        return Paths.get(PathUtils.UPLOADS_DIR).relativize(absolutePath);
     }
 
     // return saved file location
@@ -160,10 +148,6 @@ public class ApplicationPackageService {
         }
 
         return file;
-    }
-
-    private static boolean isInsideInnerFolderInZip(String fileName) {
-        return fileName.contains(ZIP_INNER_FILE_SEPARATOR);
     }
 
     private ZipDescriptor handleZip(Path zipFilePath, Path tempDir) {

@@ -16,6 +16,8 @@ public final class FileUtils {
 
     private static final String ZIP_FILE_EXTENSION = ".zip";
     private static final String TXT_FILE_EXTENSION = ".txt";
+    public static final String ZIP_INNER_FILE_SEPARATOR = "/";
+
 
     private FileUtils() {
     }
@@ -68,6 +70,22 @@ public final class FileUtils {
         } catch (IOException e) {
             throw new InternalErrorException("Cannot copy " + srcFilePath + " to " + destDirectory, e);
         }
+    }
+
+    public static String copyTo(File f, Path dir) {
+        if (f == null) {
+            return null;
+        }
+        Path p = FileUtils.copyFile(f.toPath(), dir);
+        return getRelativePathInUploads(p).toString();
+    }
+
+    public static Path getRelativePathInUploads(Path absolutePath) {
+        return Paths.get(PathUtils.UPLOADS_DIR).relativize(absolutePath);
+    }
+
+    public static boolean isInsideInnerFolderInZip(String fileName) {
+        return fileName.contains(ZIP_INNER_FILE_SEPARATOR);
     }
 
     public static boolean isTxt(String fileName) {
