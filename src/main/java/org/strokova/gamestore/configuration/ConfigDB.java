@@ -16,11 +16,13 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.strokova.gamestore.controller.GamestoreExceptionHandler;
 import org.strokova.gamestore.model.Models;
 import org.strokova.gamestore.repository.Repositories;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.logging.Logger;
 
 /**
  * @author vstrokova, 05.09.2016.
@@ -30,6 +32,8 @@ import javax.sql.DataSource;
 @EnableJpaRepositories(basePackageClasses = Repositories.class)
 @PropertySource("classpath:application.properties")
 public class ConfigDB {
+
+    private static final Logger logger = Logger.getLogger(ConfigDB.class.getName());
 
     private static final String DATASOURCE_NAME_JDBC_GAMESTORE = "jdbc/gamestore";
     private static final String PROPERTIES_KEY_HIBERNATE_DIALECT = "hibernate.dialect";
@@ -45,6 +49,7 @@ public class ConfigDB {
     @Profile("prod")
     @Bean
     public DataSource prodDataSource() {
+        logger.info("Starting PROD MySQL database");
         final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();
         dsLookup.setResourceRef(true);
         return dsLookup.getDataSource(DATASOURCE_NAME_JDBC_GAMESTORE);
@@ -53,6 +58,7 @@ public class ConfigDB {
     @Profile("dev")
     @Bean
     public DataSource devDataSource() {
+        logger.info("Starting DEV H2 database");
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript(CREATE_DATABASE_WITH_DATA_SCRIPT_H2)
