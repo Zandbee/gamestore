@@ -1,6 +1,11 @@
-При разработке приложения использовались Java 8, Apache Tomcat 8, MySQL Server 5.7.
+При разработке приложения использовались Java 8, Apache Tomcat 8.
 
-Приложение пакуется в war-архив с помощью maven (mvn package), который помещается в папку target. war-файл скопировать в папку {Tomcat folder}/webapps. При условии запущенного Tomcat, приложение задеплоится и будет доступно по адресу localhost:<port>/gamestore (port зависит от настроек Tomcat, настраивается в файле {Tomcat folder}/conf/server.xml. Значение по умолчанию - 8080. Я использую значение по умолчанию).
+База данных выбирается на основе профилей, которые настраиваются в файле application.properties:
+- если spring.profiles.active = dev, то запускается embedded БД H2. Скрипт создания базы с некоторыми тестовыми данными применяется автоматически (gamestore_create_database_with_test_data_07nov2016_h2.sql);
+- если spring.profiles.active = prod, то приложение будет работать c БД MySQL, которую необходимо настроить самостоятельно. Параметры подключения в файле webapp/META-INF/context.xml. Скрипт создания базы с некоторыми тестовыми данными - gamestore_create_database_with_test_data_03nov2016_mysql.sql.
+По умолчанию используется профиль dev.
+
+Приложение пакуется в war-архив с помощью maven (mvn package), который помещается в папку target. war-файл скопировать в папку {Tomcat folder}/webapps. При условии запущенного Tomcat, приложение задеплоится и будет доступно по адресу localhost:{port}/gamestore (port зависит от настроек Tomcat, настраивается в файле {Tomcat folder}/conf/server.xml. Значение по умолчанию - 8080. Я использую значение по умолчанию).
 
 Zip считается невалидным, если:
 1. в нем более 3 файлов (1 txt и 2 картинки)
