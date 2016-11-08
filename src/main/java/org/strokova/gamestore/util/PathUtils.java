@@ -11,11 +11,7 @@ public final class PathUtils {
     }
 
     private static String initializeHome() {
-        String home = System.getenv().get("GAMESTORE_HOME");
-        if (home == null) {
-            home = System.getProperty("user.home") + "/.gamestore";
-        }
-        return home;
+        return System.getProperty("user.home") + "/.gamestore";
     }
 
     private static String initializeUploads() {
