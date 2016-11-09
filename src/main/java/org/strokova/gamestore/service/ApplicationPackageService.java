@@ -47,8 +47,6 @@ public class ApplicationPackageService {
         Category appCategory = applicationForm.getCategory();
         MultipartFile file = applicationForm.getFile();
 
-        validateSaveUploadedApplicationRequiredParameters(userGivenName, appCategory, file);
-
         // save uploaded zip to temp dir
         Path tempDirectory = FileUtils.prepareTempDirectory(userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
@@ -88,18 +86,6 @@ public class ApplicationPackageService {
                 .setDescription(description)
                 .setCategory(appCategory)
                 .setFilePath(getRelativePathInUploads(permanentZipPath).toString());
-    }
-
-    private static void validateSaveUploadedApplicationRequiredParameters(String userGivenName, Category appCategory, MultipartFile file) {
-        if (userGivenName == null || userGivenName.isEmpty()) {
-            throw new IllegalArgumentException("userGivenName is null or empty");
-        }
-        if (appCategory == null) {
-            throw new IllegalArgumentException("No application category");
-        }
-        if (file == null) {
-            throw new IllegalArgumentException("No application file");
-        }
     }
 
     // return saved file location
