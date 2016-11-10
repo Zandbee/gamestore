@@ -1,6 +1,7 @@
 package org.strokova.gamestore.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.strokova.gamestore.exception.InternalErrorException;
@@ -10,6 +11,7 @@ import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.util.FileUtils;
+import org.strokova.gamestore.util.PathUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -29,14 +31,18 @@ public class ApplicationPackageService {
 
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final int MAX_ZIP_ENTRIES_NUMBER = 3;
+    private static final String PROPERTIES_KEY_UPLOADS_DIR = "path.uploads-dir";
+    private static final String PROPERTIES_KEY_UPLOADS_TEMP_DIR = "path.uploads-dir.temp";
 
     private final UserService userService;
     private final ApplicationService applicationService;
+    private final Environment env;
 
     @Autowired
-    public ApplicationPackageService (UserService userService, ApplicationService applicationService) {
+    public ApplicationPackageService(UserService userService, ApplicationService applicationService, Environment env) {
         this.userService = userService;
         this.applicationService = applicationService;
+        this.env = env;
     }
 
     public Application saveUploadedApplication(ApplicationForm applicationForm, String username) {
@@ -48,7 +54,9 @@ public class ApplicationPackageService {
         MultipartFile file = applicationForm.getFile();
 
         // save uploaded zip to temp dir
-        Path tempDirectory = FileUtils.prepareTempDirectory(userGivenName);
+        Path tempDirectory = FileUtils.prepareTempDirectory(
+                PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_TEMP_DIR),
+                userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
         ZipDescriptor zipDescriptor = handleZip(zipFileTmpPath, tempDirectory);
@@ -57,7 +65,9 @@ public class ApplicationPackageService {
             String packageName = zipDescriptor.getAppPackage();
             String appName = zipDescriptor.getName();
 
-            Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(packageName, appName);
+            String uploadsDir = PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR);
+            Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(
+                    uploadsDir, packageName, appName);
             Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
 
             Application application = applicationService.findByPackageAndName(packageName, appName);
@@ -67,8 +77,14 @@ public class ApplicationPackageService {
             setupApplication(application, userGivenName, description, appCategory, packageName, appName, permanentZipPath);
 
             // copy app images from temp to permanent dir, if they exist
-            application.setImage128Path(copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory));
-            application.setImage512Path(copyTo(zipDescriptor.getImage512File(), permanentApplicationDirectory));
+            Path image128PermanentPath = copyTo(zipDescriptor.getImage128File(), permanentApplicationDirectory);
+            if (image128PermanentPath != null) {
+                application.setImage128Path(getRelativePathInUploads(uploadsDir, image128PermanentPath).toString());
+            }
+            Path image512PermanentPath = copyTo(zipDescriptor.getImage512File(), permanentApplicationDirectory);
+            if (image512PermanentPath != null) {
+                application.setImage512Path(getRelativePathInUploads(uploadsDir, image512PermanentPath).toString());
+            }
 
             applicationService.saveApplicationWithUser(application, user.getId());
 
@@ -78,14 +94,16 @@ public class ApplicationPackageService {
         }
     }
 
-    private static void setupApplication(Application application, String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
+    private void setupApplication(Application application, String userGivenName, String description, Category appCategory, String packageName, String appName, Path permanentZipPath) {
         application
                 .setAppPackage(packageName)
                 .setName(appName)
                 .setUserGivenName(userGivenName)
                 .setDescription(description)
                 .setCategory(appCategory)
-                .setFilePath(getRelativePathInUploads(permanentZipPath).toString());
+                .setFilePath(getRelativePathInUploads(
+                        PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR),
+                        permanentZipPath).toString());
     }
 
     // return saved file location

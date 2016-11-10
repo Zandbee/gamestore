@@ -1,6 +1,7 @@
 package org.strokova.gamestore.configuration;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
+import org.springframework.core.env.Environment;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
@@ -35,8 +37,15 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     private static final String RESOURCE_PREFIX = "/WEB-INF/templates/";
     private static final String RESOURCE_SUFFIX = ".html";
     private static final String RESOURCE_MESSAGES_PREFIX = "/WEB-INF/messages/messages";
+    private static final String PROPERTIES_KEY_UPLOADS_DIR = "path.uploads-dir";
 
     private ApplicationContext applicationContext;
+    private Environment env;
+
+    @Autowired
+    public ConfigWeb(Environment env) {
+        this.env = env;
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -98,7 +107,8 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/");
-        registry.addResourceHandler("/files/**").addResourceLocations("file:///" + PathUtils.UPLOADS_DIR + "/");
+        registry.addResourceHandler("/files/**").addResourceLocations(
+                "file:///" + PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR) + "/");
         registry.addResourceHandler("/templates/**").addResourceLocations("/WEB-INF/templates/");
     }
 

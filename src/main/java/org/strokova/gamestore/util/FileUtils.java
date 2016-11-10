@@ -22,19 +22,19 @@ public final class FileUtils {
     private FileUtils() {
     }
 
-    public static Path preparePermanentDirectory(String packageName, String appName) {
+    public static Path preparePermanentDirectory(String parentDirName, String packageName, String appName) {
         if (packageName == null || packageName.isEmpty()
                 || appName == null || appName.isEmpty()) {
             throw new InternalErrorException("packageName and appName cannot be null or empty");
         }
 
-        Path permDir = Paths.get(PathUtils.UPLOADS_DIR +
+        Path permDir = Paths.get(parentDirName +
                 File.separator + packageName + File.separator + appName);
         return createDirectoryIfNotExist(permDir);
     }
 
-    public static Path prepareTempDirectory(String dirName) {
-        Path tempDir = Paths.get(PathUtils.UPLOADS_TEMP_DIR + File.separator + dirName);
+    public static Path prepareTempDirectory(String parentDirName, String dirName) {
+        Path tempDir = Paths.get(parentDirName + File.separator + dirName);
         return createDirectoryIfNotExist(tempDir);
     }
 
@@ -72,16 +72,15 @@ public final class FileUtils {
         }
     }
 
-    public static String copyTo(File f, Path dir) {
+    public static Path copyTo(File f, Path dir) {
         if (f == null) {
             return null;
         }
-        Path p = FileUtils.copyFile(f.toPath(), dir);
-        return getRelativePathInUploads(p).toString();
+        return FileUtils.copyFile(f.toPath(), dir);
     }
 
-    public static Path getRelativePathInUploads(Path absolutePath) {
-        return Paths.get(PathUtils.UPLOADS_DIR).relativize(absolutePath);
+    public static Path getRelativePathInUploads(String uploadsDirName, Path absolutePath) {
+        return Paths.get(uploadsDirName).relativize(absolutePath);
     }
 
     public static boolean isInsideInnerFolderInZip(String fileName) {

@@ -3,6 +3,7 @@ package org.strokova.gamestore.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -29,14 +30,17 @@ public class ApplicationPageController {
 
     private static final String PAGE_APPLICATION = "applicationPage";
     private static final String MIME_ZIP = "application/zip";
+    private static final String PROPERTIES_KEY_UPLOADS_DIR = "path.uploads-dir";
 
     private final ApplicationRepository applicationRepository;
     private final ApplicationService applicationService;
+    private final Environment env;
 
     @Autowired
-    public ApplicationPageController(ApplicationRepository applicationRepository, ApplicationService applicationService) {
+    public ApplicationPageController(ApplicationRepository applicationRepository, ApplicationService applicationService, Environment env) {
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
+        this.env = env;
     }
 
     @RequestMapping(method = GET)
@@ -55,7 +59,8 @@ public class ApplicationPageController {
         Application application = applicationService.getApplicationById(applicationId);
 
         String filePath = application.getFilePath();
-        File applicationFile = new File(PathUtils.UPLOADS_DIR + File.separator + filePath);
+        File applicationFile = new File(
+                PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR) + File.separator + filePath);
 
         if (Files.notExists(applicationFile.toPath())) {
             throw new ApplicationFileNotFoundException("Application file was not found at path: " + applicationFile);
