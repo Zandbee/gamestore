@@ -11,7 +11,6 @@ import org.strokova.gamestore.model.Application;
 import org.strokova.gamestore.model.Category;
 import org.strokova.gamestore.model.User;
 import org.strokova.gamestore.util.FileUtils;
-import org.strokova.gamestore.util.PathUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -55,7 +54,7 @@ public class ApplicationPackageService {
 
         // save uploaded zip to temp dir
         Path tempDirectory = FileUtils.prepareTempDirectory(
-                PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_TEMP_DIR),
+                env.getProperty(PROPERTIES_KEY_UPLOADS_TEMP_DIR),
                 userGivenName);
         Path zipFileTmpPath = saveApplicationZipToTempDirectory(file, tempDirectory);
 
@@ -65,7 +64,7 @@ public class ApplicationPackageService {
             String packageName = zipDescriptor.getAppPackage();
             String appName = zipDescriptor.getName();
 
-            String uploadsDir = PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR);
+            String uploadsDir = env.getProperty(PROPERTIES_KEY_UPLOADS_DIR);
             Path permanentApplicationDirectory = FileUtils.preparePermanentDirectory(
                     uploadsDir, packageName, appName);
             Path permanentZipPath = FileUtils.copyFile(zipFileTmpPath, permanentApplicationDirectory);
@@ -102,7 +101,7 @@ public class ApplicationPackageService {
                 .setDescription(description)
                 .setCategory(appCategory)
                 .setFilePath(getRelativePathInUploads(
-                        PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR),
+                        env.getProperty(PROPERTIES_KEY_UPLOADS_DIR),
                         permanentZipPath).toString());
     }
 

@@ -16,7 +16,6 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.strokova.gamestore.controller.Controllers;
-import org.strokova.gamestore.util.PathUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -95,7 +94,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
         messageSource.setDefaultEncoding(ENCODING_UTF_8);
 
         messageSource.setCacheSeconds(10); // TODO: remove when release
-        
+
         return messageSource;
     }
 
@@ -108,7 +107,7 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/");
         registry.addResourceHandler("/files/**").addResourceLocations(
-                "file:///" + PathUtils.APPLICATION_PARENT_DIR + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR) + "/");
+                "file:///" + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR) + "/");
         registry.addResourceHandler("/templates/**").addResourceLocations("/WEB-INF/templates/");
     }
 
