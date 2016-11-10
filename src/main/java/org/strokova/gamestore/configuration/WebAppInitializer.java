@@ -1,10 +1,7 @@
 package org.strokova.gamestore.configuration;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-import org.strokova.gamestore.configuration.ConfigRoot;
-import org.strokova.gamestore.configuration.ConfigWeb;
 import org.strokova.gamestore.exception.InternalErrorException;
-import org.strokova.gamestore.util.PathUtils;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
@@ -21,6 +18,9 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     private static final int MAX_FILE_SIZE = 2097152; // 2 MB
     private static final int MAX_REQUEST_SIZE = 4194304; // 4 MB
     private static final int FILE_SIZE_THRESHOLD = 0;
+
+    private static final String DEFAULT_TEMP_DIR_PROPERTY = "java.io.tmpdir";
+    private static final String MULTIPART_TEMP_DIR_NAME = "/gamestore";
 
     @Override
     protected String[] getServletMappings() {
@@ -40,12 +40,12 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         try {
-            Path uploadsPath = Paths.get(PathUtils.UPLOAD_MULTIPART_TEMP_DIR);
-            if (Files.notExists(uploadsPath)) {
-                Files.createDirectories(uploadsPath);
+            Path multipartUploadsPath = Paths.get(System.getProperty(DEFAULT_TEMP_DIR_PROPERTY) + MULTIPART_TEMP_DIR_NAME);
+            if (Files.notExists(multipartUploadsPath)) {
+                Files.createDirectories(multipartUploadsPath);
             }
             registration.setMultipartConfig(
-                    new MultipartConfigElement(uploadsPath.toString(), MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD));
+                    new MultipartConfigElement(multipartUploadsPath.toString(), MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD));
         } catch (IOException e) {
             throw new InternalErrorException("Cannot create directory");
         }
