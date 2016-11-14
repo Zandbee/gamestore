@@ -1,16 +1,17 @@
 package org.strokova.gamestore.configuration;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
-import org.springframework.core.env.Environment;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
@@ -30,21 +31,18 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackageClasses = Controllers.class)
+@PropertySource("classpath:application.properties")
 public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
     private static final String ENCODING_UTF_8 = "UTF-8";
     private static final String RESOURCE_PREFIX = "/WEB-INF/templates/";
     private static final String RESOURCE_SUFFIX = ".html";
     private static final String RESOURCE_MESSAGES_PREFIX = "/WEB-INF/messages/messages";
-    private static final String PROPERTIES_KEY_UPLOADS_DIR = "path.uploads-dir";
 
     private ApplicationContext applicationContext;
-    private Environment env;
 
-    @Autowired
-    public ConfigWeb(Environment env) {
-        this.env = env;
-    }
+    @Value("${path.uploads-dir}")
+    private String uploadsDirectory;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -56,7 +54,6 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
         registry.addViewController("/login").setViewName("login");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
-
 
     @Bean
     public ViewResolver viewResolver() {
@@ -106,13 +103,17 @@ public class ConfigWeb extends WebMvcConfigurerAdapter implements ApplicationCon
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/assets/");
-        registry.addResourceHandler("/files/**").addResourceLocations(
-                "file:///" + env.getProperty(PROPERTIES_KEY_UPLOADS_DIR) + "/");
+        registry.addResourceHandler("/files/**").addResourceLocations("file:///" + uploadsDirectory + "/");
         registry.addResourceHandler("/templates/**").addResourceLocations("/WEB-INF/templates/");
     }
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 }

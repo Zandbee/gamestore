@@ -1,11 +1,10 @@
 package org.strokova.gamestore.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -16,7 +15,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.strokova.gamestore.controller.GamestoreExceptionHandler;
 import org.strokova.gamestore.model.Models;
 import org.strokova.gamestore.repository.Repositories;
 
@@ -30,21 +28,16 @@ import java.util.logging.Logger;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackageClasses = Repositories.class)
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.properties") // already have this in ConfigWeb class
 public class ConfigDB {
 
     private static final Logger logger = Logger.getLogger(ConfigDB.class.getName());
 
     private static final String DATASOURCE_NAME_JDBC_GAMESTORE = "jdbc/gamestore";
-    private static final String PROPERTIES_KEY_HIBERNATE_DIALECT = "hibernate.dialect";
     private static final String CREATE_DATABASE_WITH_DATA_SCRIPT_H2 = "classpath:db/gamestore_create_database_with_test_data_07nov2016_h2.sql";
 
-    private final Environment env;
-
-    @Autowired
-    public ConfigDB(Environment env) {
-        this.env = env;
-    }
+    @Value("${hibernate.dialect}")
+    private String hibernateDialect;
 
     @Profile("prod")
     @Bean
@@ -71,7 +64,7 @@ public class ConfigDB {
         adapter.setDatabase(Database.MYSQL);
         adapter.setShowSql(true);
         adapter.setGenerateDdl(false);
-        adapter.setDatabasePlatform(env.getProperty(PROPERTIES_KEY_HIBERNATE_DIALECT));
+        adapter.setDatabasePlatform(hibernateDialect);
         return adapter;
     }
 

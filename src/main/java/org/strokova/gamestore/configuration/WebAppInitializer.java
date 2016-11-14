@@ -1,5 +1,6 @@
 package org.strokova.gamestore.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import org.strokova.gamestore.exception.InternalErrorException;
 
@@ -21,6 +22,9 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 
     private static final String DEFAULT_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private static final String MULTIPART_TEMP_DIR_NAME = "/gamestore";
+
+    @Value("${path.app-home}")
+    private String path;
 
     @Override
     protected String[] getServletMappings() {
